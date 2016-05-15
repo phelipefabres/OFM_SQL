@@ -93,12 +93,12 @@ public class Data implements Serializable {
     @Basic(optional = false)
     @Column(name = "test_way", nullable = false)
     private int testWay;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.LAZY)
     private List<DataEvent> dataEventList;
     @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @OneToOne(optional = false, fetch = FetchType.EAGER)
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
     private Device device;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.LAZY)
     private List<DataGraphic> dataGraphicList;
 
     public Data() {

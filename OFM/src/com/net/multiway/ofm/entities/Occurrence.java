@@ -53,7 +53,7 @@ public class Occurrence implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createTime;
     @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Device device;
 
     public Occurrence() {

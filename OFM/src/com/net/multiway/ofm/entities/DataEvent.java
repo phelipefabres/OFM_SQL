@@ -61,7 +61,7 @@ public class DataEvent implements Serializable {
     @Column(name = "acumulative_loss", nullable = false)
     private float acumulativeLoss;
     @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Data data;
 
     public DataEvent() {

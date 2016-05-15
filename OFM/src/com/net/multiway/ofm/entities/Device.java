@@ -70,16 +70,16 @@ public class Device implements Serializable {
     @Column(name = "update_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTime;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     private Data data;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     private Parameter parameter;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     private Limit limit;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     private List<Occurrence> occurrenceList;
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User user;
 
     public Device() {

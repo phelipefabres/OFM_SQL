@@ -41,7 +41,7 @@ public class DataGraphic implements Serializable {
     @Column(nullable = false)
     private int value;
     @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Data data;
 
     public DataGraphic() {

@@ -104,10 +104,10 @@ public class Parameter implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTime;
     @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @OneToOne(optional = false, fetch = FetchType.EAGER)
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
     private Device device;
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User user;
 
     public Parameter() {
