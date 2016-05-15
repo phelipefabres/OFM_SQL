@@ -29,7 +29,7 @@ import javax.persistence.UniqueConstraint;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 @Entity
 @Table(catalog = "ofm", schema = "", uniqueConstraints = {
@@ -70,27 +70,22 @@ public class Device implements Serializable {
     @Column(name = "update_time")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTime;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
     private Data data;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
     private Parameter parameter;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
     private Limit limit;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.EAGER)
     private List<Occurrence> occurrenceList;
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
     public Device() {
     }
 
-    public Device(Integer deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public Device(Integer deviceId, String name, String ip, String mask, String gateway, Date createTime) {
-        this.deviceId = deviceId;
+    public Device(String name, String ip, String mask, String gateway, Date createTime) {
         this.name = name;
         this.ip = ip;
         this.mask = mask;

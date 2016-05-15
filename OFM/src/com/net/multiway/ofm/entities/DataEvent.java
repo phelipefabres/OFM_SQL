@@ -21,7 +21,7 @@ import javax.persistence.Table;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 @Entity
 @Table(name = "data_event", catalog = "ofm", schema = "")
@@ -61,16 +61,13 @@ public class DataEvent implements Serializable {
     @Column(name = "acumulative_loss", nullable = false)
     private float acumulativeLoss;
     @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Data data;
 
     public DataEvent() {
     }
 
-   
-
-    public DataEvent( float distance, int type, float echoLoss, float insertionLoss, float averageAttenuationCoefficient, float acumulativeLoss) {
-      
+    public DataEvent(float distance, int type, float echoLoss, float insertionLoss, float averageAttenuationCoefficient, float acumulativeLoss) {
         this.distance = distance;
         this.type = type;
         this.echoLoss = echoLoss;

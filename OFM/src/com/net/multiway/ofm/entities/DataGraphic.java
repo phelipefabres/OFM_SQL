@@ -21,7 +21,7 @@ import javax.persistence.Table;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 @Entity
 @Table(name = "data_graphic", catalog = "ofm", schema = "")
@@ -51,7 +51,8 @@ public class DataGraphic implements Serializable {
         this.dataGraphicId = dataGraphicId;
     }
 
-    public DataGraphic( int value) {
+    public DataGraphic(Long dataGraphicId, int value) {
+        this.dataGraphicId = dataGraphicId;
         this.value = value;
     }
 

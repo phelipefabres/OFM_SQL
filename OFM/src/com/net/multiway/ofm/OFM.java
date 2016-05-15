@@ -5,13 +5,19 @@
  */
 package com.net.multiway.ofm;
 
+import com.net.multiway.ofm.daos.DataDAO;
+import com.net.multiway.ofm.daos.DataEventDAO;
 import com.net.multiway.ofm.daos.DataGraphicDAO;
 import com.net.multiway.ofm.daos.DeviceDAO;
+import com.net.multiway.ofm.daos.LimitDAO;
+import com.net.multiway.ofm.daos.ParameterDAO;
 import com.net.multiway.ofm.daos.UserDAO;
 import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
 import com.net.multiway.ofm.entities.Data;
-import com.net.multiway.ofm.entities.DataGraphic;
+import com.net.multiway.ofm.entities.DataEvent;
 import com.net.multiway.ofm.entities.Device;
+import com.net.multiway.ofm.entities.Limit;
+import com.net.multiway.ofm.entities.Parameter;
 import com.net.multiway.ofm.entities.User;
 import java.util.Date;
 import javafx.application.Application;
@@ -39,78 +45,65 @@ public class OFM extends Application {
             user.setEmail("teste@vai.dar.certo");
             user.setPassword("13");
             user.setCreateTime(new Date());
-
             userDao.create(user);
         }
         System.out.println(user.getEmail());
 
         DeviceDAO deviceDao = new DeviceDAO(emf);
+        ParameterDAO parameterDao = new ParameterDAO(emf);
+        LimitDAO limitDao = new LimitDAO(emf);
+        DataDAO dataDao = new DataDAO(emf);
+        DataGraphicDAO dataGraphicDao = new DataGraphicDAO(emf);
+        DataEventDAO dataEventDao = new DataEventDAO(emf);
+        
+
         Device device = deviceDao.findDevice(1);
-//        System.out.println(device.toString());
-//        System.out.println(device.getParameter().toString());
-//        System.out.println(device.getLimit().toString());
-//        System.out.println(device.getData().toString());
-//        
-//        Data data = device.getData();
-//
-//        DataGraphic dg1 = new DataGraphic(1);
-//        dg1.setData(device.getData());
-//        DataGraphicDAO dgDao = new DataGraphicDAO(emf);
-//        
-//        DataGraphic dg2 = new DataGraphic(2);
-//        dg2.setData(device.getData());
-//        
-//        device.getData().getDataGraphicList().add(dg1);
-//        device.getData().getDataGraphicList().add(dg2);
+        if (device == null) {
+            device = new Device();
+            device.setName("DEVICE_1");
+            device.setIp("123");
+            device.setMask("1");
+            device.setGateway("2");
+            device.setUser(user);
+            device.setCreateTime(new Date());
+            deviceDao.create(device);
 
-//        
-//        device.setName("DEVICE_1");
-//        device.setIp("123");
-//        device.setMask("1");
-//        device.setGateway("2");
-//        device.setUser(user);
-//        device.setCreateTime(new Date());
-//        deviceDao.create(device);
-//        
-//        Parameter parameter = new Parameter(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new Date());
-//        parameter.setUser(user);
-//        parameter.setDevice(device);
-//        
-//        ParameterDAO pdao = new ParameterDAO(emf);
-//        pdao.create(parameter);
-//        
-//        Limit limit = new Limit(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new Date());
-//        limit.setUser(user);
-//        limit.setDevice(device);
-//        
-//        LimitDAO ldao = new LimitDAO(emf);
-//        ldao.create(limit);
-//        
-        Data data = device.getData();
-        if (data == null) {
-            System.out.println("Fudeu");
-            System.exit(0);
+            Parameter parameter = new Parameter(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new Date());
+            parameter.setDevice(device); // enlace bidirecional
+            parameter.setUser(user);
+            parameterDao.create(parameter);
+            device.setParameter(parameter); // enlace bidirecional
+
+            Limit limit = new Limit(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new Date());
+            limit.setDevice(device); // enlace bidirecional
+            limit.setUser(user);
+            limitDao.create(limit);
+            device.setLimit(limit); //enlace bidirecional
+
+            Data data = new Data(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            data.setDevice(device); //enlace bidirecional
+            dataDao.create(data);
+            device.setData(data); //enlace bidirecional
+            
+//            DataGraphic dg;
+//            for(int i = 0; i < 15000; i++) {
+//                dg = new DataGraphic(data, i);
+//                dataGraphicDao.create(dg);
+//                data.getDataGraphicList().add(dg); //enlace bidirecional
+//            }
+            
+            DataEvent dataEvent = new DataEvent(0, 0, 0, 0, 0, 0);
+            dataEvent.setData(data);
+            dataEventDao.create(dataEvent);
+            data.getDataEventList().add(dataEvent);
         }
-
-        data.setDevice(device);
-        System.out.println("Fudeu " + device.getDeviceId());
-//        DataDAO ddao = new DataDAO(emf);
-//        ddao.create(data);
-
-//        DataGraphic dataGraphic = new DataGraphic();
-//        dataGraphic.setValue(1);
-//       
-        DataGraphicDAO gdao = new DataGraphicDAO(emf);
-//        gdao.create(dataGraphic);
-//
-//        data.getDataGraphicList().add(dataGraphic);
-
-        DataGraphic dataGraphic2 = new DataGraphic();
-        dataGraphic2.setValue(5);
-        dataGraphic2.setData(data);
-        gdao.create(dataGraphic2);
-        data.getDataGraphicList().add(dataGraphic2);
-
+        else {
+            System.out.println(device.toString());
+            System.out.println(device.getParameter().toString());
+            System.out.println(device.getLimit().toString());
+            System.out.println(device.getData().toString());
+            
+        }
     }
 
     /**

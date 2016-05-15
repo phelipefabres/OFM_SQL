@@ -19,7 +19,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 public class DataEventDAO implements Serializable {
 
