@@ -26,7 +26,7 @@ import javax.persistence.UniqueConstraint;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 @Entity
 @Table(catalog = "ofm", schema = "", uniqueConstraints = {
@@ -104,17 +104,16 @@ public class Parameter implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateTime;
     @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @OneToOne(optional = false, fetch = FetchType.EAGER)
     private Device device;
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User user;
 
     public Parameter() {
     }
 
     public Parameter(int measuringRangeOfTest, int testPulseWidth, int measuringTime, int testWaveLength, int measureMode, float refractiveIndex, float nonReflactionThreshold, float endThreshold, float reflectionThreshold, int optimizeMode, int enabledRefresh, int refreshCycle, int cycleTime, Date createTime) {
-
         this.measuringRangeOfTest = measuringRangeOfTest;
         this.testPulseWidth = testPulseWidth;
         this.measuringTime = measuringTime;
@@ -299,5 +298,5 @@ public class Parameter implements Serializable {
     public String toString() {
         return "com.net.multiway.ofm.entities.Parameter[ parameterId=" + parameterId + " ]";
     }
-
+    
 }

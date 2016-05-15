@@ -6,7 +6,6 @@
 package com.net.multiway.ofm.entities;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -26,7 +25,7 @@ import javax.persistence.UniqueConstraint;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 @Entity
 @Table(catalog = "ofm", schema = "", uniqueConstraints = {
@@ -94,10 +93,10 @@ public class Data implements Serializable {
     @Basic(optional = false)
     @Column(name = "test_way", nullable = false)
     private int testWay;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.EAGER)
     private List<DataEvent> dataEventList;
     @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @OneToOne(optional = false, fetch = FetchType.EAGER)
     private Device device;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.EAGER)
     private List<DataGraphic> dataGraphicList;
@@ -106,7 +105,6 @@ public class Data implements Serializable {
     }
 
     public Data(int sampleFrequency, int rangeOfTest, int pulseWidth, int waveLength, int testTime, float groupRefractiveIndex, float linkLength, float linkLoss, float linkAttenuation, float nonReflectingThreshold, float endThreshold, float testMode, int testWay) {
-
         this.sampleFrequency = sampleFrequency;
         this.rangeOfTest = rangeOfTest;
         this.pulseWidth = pulseWidth;
@@ -120,8 +118,6 @@ public class Data implements Serializable {
         this.endThreshold = endThreshold;
         this.testMode = testMode;
         this.testWay = testWay;
-        this.dataEventList = new ArrayList<DataEvent>();
-        this.dataGraphicList = new ArrayList<DataGraphic>();
     }
 
     public Integer getDataId() {
@@ -284,5 +280,5 @@ public class Data implements Serializable {
     public String toString() {
         return "com.net.multiway.ofm.entities.Data[ dataId=" + dataId + " ]";
     }
-
+    
 }

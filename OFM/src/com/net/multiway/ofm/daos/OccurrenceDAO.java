@@ -19,7 +19,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 public class OccurrenceDAO implements Serializable {
 
