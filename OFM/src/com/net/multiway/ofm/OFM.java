@@ -5,32 +5,19 @@
  */
 package com.net.multiway.ofm;
 
-import com.net.multiway.ofm.daos.DataDAO;
 import com.net.multiway.ofm.daos.DataGraphicDAO;
 import com.net.multiway.ofm.daos.DeviceDAO;
-import com.net.multiway.ofm.daos.LimitDAO;
-import com.net.multiway.ofm.daos.ParameterDAO;
 import com.net.multiway.ofm.daos.UserDAO;
 import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
 import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataGraphic;
 import com.net.multiway.ofm.entities.Device;
-import com.net.multiway.ofm.entities.Limit;
-import com.net.multiway.ofm.entities.Parameter;
 import com.net.multiway.ofm.entities.User;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.persistence.PersistenceUnit;
 
 /**
  *
