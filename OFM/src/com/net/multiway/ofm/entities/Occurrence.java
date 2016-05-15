@@ -24,7 +24,7 @@ import javax.persistence.TemporalType;
 
 /**
  *
- * @author phelipe
+ * @author joshua
  */
 @Entity
 @Table(catalog = "ofm", schema = "")
@@ -53,7 +53,7 @@ public class Occurrence implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createTime;
     @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Device device;
 
     public Occurrence() {
