@@ -6,10 +6,15 @@
 package com.net.multiway.ofm.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -49,77 +54,68 @@ import javax.persistence.UniqueConstraint;
 public class Data implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private Integer dataId;
+    private ObjectProperty<Integer> sampleFrequency;
+    private ObjectProperty<Integer> rangeOfTest;
+    private ObjectProperty<Integer> pulseWidth;
+    private ObjectProperty<Integer> waveLength;
+    private ObjectProperty<Integer> testTime;
+    private ObjectProperty<Float> groupRefractiveIndex;
+    private ObjectProperty<Float> linkLength;
+    private ObjectProperty<Float> linkLoss;
+    private ObjectProperty<Float> linkAttenuation;
+    private ObjectProperty<Float> nonReflectingThreshold;
+    private ObjectProperty<Float> endThreshold;
+    private ObjectProperty<Float> testMode;
+    private ObjectProperty<Integer> testWay;
+
+    private List<DataEvent> dataEventList;
+
+    private Device device;
+
+    private List<DataGraphic> dataGraphicList;
+
+    public Data() {
+        this.sampleFrequency = new SimpleObjectProperty<>();
+        this.rangeOfTest = new SimpleObjectProperty<>();
+        this.pulseWidth = new SimpleObjectProperty<>();
+        this.waveLength = new SimpleObjectProperty<>();
+        this.testTime = new SimpleObjectProperty<>();
+        this.groupRefractiveIndex = new SimpleObjectProperty<>();
+        this.linkLength = new SimpleObjectProperty<>();
+        this.linkLoss = new SimpleObjectProperty<>();
+        this.linkAttenuation = new SimpleObjectProperty<>();
+        this.nonReflectingThreshold = new SimpleObjectProperty<>();
+        this.endThreshold = new SimpleObjectProperty<>();
+        this.testMode = new SimpleObjectProperty<>();
+        this.testWay = new SimpleObjectProperty<>();
+        this.dataGraphicList = new ArrayList<>();
+        this.dataEventList = new ArrayList<>();
+    }
+
+    public Data(int sampleFrequency, int rangeOfTest, int pulseWidth, int waveLength, int testTime, float groupRefractiveIndex, float linkLength, float linkLoss, float linkAttenuation, float nonReflectingThreshold, float endThreshold, float testMode, int testWay) {
+        this.sampleFrequency = new SimpleObjectProperty<>(sampleFrequency);
+        this.rangeOfTest = new SimpleObjectProperty<>(rangeOfTest);
+        this.pulseWidth = new SimpleObjectProperty<>(pulseWidth);
+        this.waveLength = new SimpleObjectProperty<>(waveLength);
+        this.testTime = new SimpleObjectProperty<>(testTime);
+        this.groupRefractiveIndex = new SimpleObjectProperty<>(groupRefractiveIndex);
+        this.linkLength = new SimpleObjectProperty<>(linkLength);
+        this.linkLoss = new SimpleObjectProperty<>(linkLoss);
+        this.linkAttenuation = new SimpleObjectProperty<>(linkAttenuation);
+        this.nonReflectingThreshold = new SimpleObjectProperty<>(nonReflectingThreshold);
+        this.endThreshold = new SimpleObjectProperty<>(endThreshold);
+        this.testMode = new SimpleObjectProperty<>(testMode);
+        this.testWay = new SimpleObjectProperty<>(testWay);
+        this.dataGraphicList = new ArrayList<>();
+        this.dataEventList = new ArrayList<>();
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "data_id", nullable = false)
-    private Integer dataId;
-    @Basic(optional = false)
-    @Column(name = "sample_frequency", nullable = false)
-    private int sampleFrequency;
-    @Basic(optional = false)
-    @Column(name = "range_of_test", nullable = false)
-    private int rangeOfTest;
-    @Basic(optional = false)
-    @Column(name = "pulse_width", nullable = false)
-    private int pulseWidth;
-    @Basic(optional = false)
-    @Column(name = "wave_length", nullable = false)
-    private int waveLength;
-    @Basic(optional = false)
-    @Column(name = "test_time", nullable = false)
-    private int testTime;
-    @Basic(optional = false)
-    @Column(name = "group_refractive_index", nullable = false)
-    private float groupRefractiveIndex;
-    @Basic(optional = false)
-    @Column(name = "link_length", nullable = false)
-    private float linkLength;
-    @Basic(optional = false)
-    @Column(name = "link_loss", nullable = false)
-    private float linkLoss;
-    @Basic(optional = false)
-    @Column(name = "link_attenuation", nullable = false)
-    private float linkAttenuation;
-    @Basic(optional = false)
-    @Column(name = "non_reflecting_threshold", nullable = false)
-    private float nonReflectingThreshold;
-    @Basic(optional = false)
-    @Column(name = "end_threshold", nullable = false)
-    private float endThreshold;
-    @Basic(optional = false)
-    @Column(name = "test_mode", nullable = false)
-    private float testMode;
-    @Basic(optional = false)
-    @Column(name = "test_way", nullable = false)
-    private int testWay;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.LAZY)
-    private List<DataEvent> dataEventList;
-    @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private Device device;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.LAZY)
-    private List<DataGraphic> dataGraphicList;
-
-    public Data() {
-    }
-
-    public Data(int sampleFrequency, int rangeOfTest, int pulseWidth, int waveLength, int testTime, float groupRefractiveIndex, float linkLength, float linkLoss, float linkAttenuation, float nonReflectingThreshold, float endThreshold, float testMode, int testWay) {
-        this.sampleFrequency = sampleFrequency;
-        this.rangeOfTest = rangeOfTest;
-        this.pulseWidth = pulseWidth;
-        this.waveLength = waveLength;
-        this.testTime = testTime;
-        this.groupRefractiveIndex = groupRefractiveIndex;
-        this.linkLength = linkLength;
-        this.linkLoss = linkLoss;
-        this.linkAttenuation = linkAttenuation;
-        this.nonReflectingThreshold = nonReflectingThreshold;
-        this.endThreshold = endThreshold;
-        this.testMode = testMode;
-        this.testWay = testWay;
-    }
-
     public Integer getDataId() {
         return dataId;
     }
@@ -128,118 +124,151 @@ public class Data implements Serializable {
         this.dataId = dataId;
     }
 
-    public int getSampleFrequency() {
-        return sampleFrequency;
+    @Basic(optional = false)
+    @Column(name = "sample_frequency", nullable = false)
+    public Integer getSampleFrequency() {
+        return sampleFrequency.get();
     }
 
     public void setSampleFrequency(int sampleFrequency) {
-        this.sampleFrequency = sampleFrequency;
+        this.sampleFrequency.set(sampleFrequency);
     }
 
-    public int getRangeOfTest() {
-        return rangeOfTest;
+    @Basic(optional = false)
+    @Column(name = "range_of_test", nullable = false)
+    public Integer getRangeOfTest() {
+        return rangeOfTest.get();
     }
 
     public void setRangeOfTest(int rangeOfTest) {
-        this.rangeOfTest = rangeOfTest;
+        this.rangeOfTest.set(rangeOfTest);
     }
 
-    public int getPulseWidth() {
-        return pulseWidth;
+    @Basic(optional = false)
+    @Column(name = "pulse_width", nullable = false)
+    public Integer getPulseWidth() {
+        return pulseWidth.get();
     }
 
     public void setPulseWidth(int pulseWidth) {
-        this.pulseWidth = pulseWidth;
+        this.pulseWidth.set(pulseWidth);
     }
 
-    public int getWaveLength() {
-        return waveLength;
+    @Basic(optional = false)
+    @Column(name = "wave_length", nullable = false)
+    public Integer getWaveLength() {
+        return waveLength.get();
     }
 
     public void setWaveLength(int waveLength) {
-        this.waveLength = waveLength;
+        this.waveLength.set(waveLength);
     }
 
-    public int getTestTime() {
-        return testTime;
+    @Basic(optional = false)
+    @Column(name = "test_time", nullable = false)
+    public Integer getTestTime() {
+        return testTime.get();
     }
 
     public void setTestTime(int testTime) {
-        this.testTime = testTime;
+        this.testTime.set(testTime);
     }
 
-    public float getGroupRefractiveIndex() {
-        return groupRefractiveIndex;
+    @Basic(optional = false)
+    @Column(name = "group_refractive_index", nullable = false)
+    public Float getGroupRefractiveIndex() {
+        return groupRefractiveIndex.get();
     }
 
     public void setGroupRefractiveIndex(float groupRefractiveIndex) {
-        this.groupRefractiveIndex = groupRefractiveIndex;
+        this.groupRefractiveIndex.set(groupRefractiveIndex);
     }
 
-    public float getLinkLength() {
-        return linkLength;
+    @Basic(optional = false)
+    @Column(name = "link_length", nullable = false)
+    public Float getLinkLength() {
+        return linkLength.get();
     }
 
     public void setLinkLength(float linkLength) {
-        this.linkLength = linkLength;
+        this.linkLength.set(linkLength);
     }
 
-    public float getLinkLoss() {
-        return linkLoss;
+    @Basic(optional = false)
+    @Column(name = "link_loss", nullable = false)
+    public Float getLinkLoss() {
+        return linkLoss.get();
     }
 
     public void setLinkLoss(float linkLoss) {
-        this.linkLoss = linkLoss;
+        this.linkLoss.set(linkLoss);
     }
 
-    public float getLinkAttenuation() {
-        return linkAttenuation;
+    @Basic(optional = false)
+    @Column(name = "link_attenuation", nullable = false)
+    public Float getLinkAttenuation() {
+        return linkAttenuation.get();
     }
 
     public void setLinkAttenuation(float linkAttenuation) {
-        this.linkAttenuation = linkAttenuation;
+        this.linkAttenuation.set(linkAttenuation);
     }
 
-    public float getNonReflectingThreshold() {
-        return nonReflectingThreshold;
+    @Basic(optional = false)
+    @Column(name = "non_reflecting_threshold", nullable = false)
+    public Float getNonReflectingThreshold() {
+        return nonReflectingThreshold.get();
     }
 
     public void setNonReflectingThreshold(float nonReflectingThreshold) {
-        this.nonReflectingThreshold = nonReflectingThreshold;
+        this.nonReflectingThreshold.set(nonReflectingThreshold);
     }
 
-    public float getEndThreshold() {
-        return endThreshold;
+    @Basic(optional = false)
+    @Column(name = "end_threshold", nullable = false)
+    public Float getEndThreshold() {
+        return endThreshold.get();
     }
 
     public void setEndThreshold(float endThreshold) {
-        this.endThreshold = endThreshold;
+        this.endThreshold.set(endThreshold);
     }
 
-    public float getTestMode() {
-        return testMode;
+    @Basic(optional = false)
+    @Column(name = "test_mode", nullable = false)
+    public Float getTestMode() {
+        return testMode.get();
     }
 
     public void setTestMode(float testMode) {
-        this.testMode = testMode;
+        this.testMode.set(testMode);
     }
 
-    public int getTestWay() {
-        return testWay;
+    @Basic(optional = false)
+    @Column(name = "test_way", nullable = false)
+    public Integer getTestWay() {
+        return testWay.get();
     }
 
     public void setTestWay(int testWay) {
-        this.testWay = testWay;
+        this.testWay.set(testWay);
     }
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.LAZY)
     public List<DataEvent> getDataEventList() {
         return dataEventList;
+    }
+
+    public void addEvents(DataEvent events) {
+        this.dataEventList.add(events);
     }
 
     public void setDataEventList(List<DataEvent> dataEventList) {
         this.dataEventList = dataEventList;
     }
 
+    @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
     public Device getDevice() {
         return device;
     }
@@ -248,6 +277,7 @@ public class Data implements Serializable {
         this.device = device;
     }
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "data", fetch = FetchType.LAZY)
     public List<DataGraphic> getDataGraphicList() {
         return dataGraphicList;
     }
@@ -280,5 +310,5 @@ public class Data implements Serializable {
     public String toString() {
         return "com.net.multiway.ofm.entities.Data[ dataId=" + dataId + " ]";
     }
-    
+
 }

@@ -32,16 +32,11 @@ import javax.persistence.Table;
 public class DataGraphic implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "data_graphic_id", nullable = false)
+
     private Long dataGraphicId;
-    @Basic(optional = false)
-    @Column(nullable = false)
+
     private int value;
-    @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+
     private Data data;
 
     public DataGraphic() {
@@ -56,6 +51,14 @@ public class DataGraphic implements Serializable {
         this.value = value;
     }
 
+    public DataGraphic(int value) {
+        this.value = value;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "data_graphic_id", nullable = false)
     public Long getDataGraphicId() {
         return dataGraphicId;
     }
@@ -64,6 +67,8 @@ public class DataGraphic implements Serializable {
         this.dataGraphicId = dataGraphicId;
     }
 
+    @Basic(optional = false)
+    @Column(name = "value", nullable = false)
     public int getValue() {
         return value;
     }
@@ -72,6 +77,8 @@ public class DataGraphic implements Serializable {
         this.value = value;
     }
 
+    @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     public Data getData() {
         return data;
     }
@@ -104,5 +111,5 @@ public class DataGraphic implements Serializable {
     public String toString() {
         return "com.net.multiway.ofm.entities.DataGraphic[ dataGraphicId=" + dataGraphicId + " ]";
     }
-    
+
 }

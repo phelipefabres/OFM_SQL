@@ -7,6 +7,10 @@ package com.net.multiway.ofm.entities;
 
 import java.io.Serializable;
 import java.util.Date;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,26 +41,21 @@ import javax.persistence.TemporalType;
 public class Occurrence implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "occurrence_id", nullable = false)
+
     private Integer occurrenceId;
-    @Basic(optional = false)
-    @Column(nullable = false, length = 6)
-    private String type;
-    @Basic(optional = false)
-    @Column(nullable = false, length = 127)
-    private String description;
-    @Basic(optional = false)
-    @Column(name = "create_time", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createTime;
-    @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+
+    private StringProperty type;
+
+    private StringProperty description;
+
+    private ObjectProperty<Date> createTime;
+
     private Device device;
 
     public Occurrence() {
+        this.type = new SimpleStringProperty();
+        this.description = new SimpleStringProperty();
+        this.createTime = new SimpleObjectProperty<>();
     }
 
     public Occurrence(Integer occurrenceId) {
@@ -65,11 +64,15 @@ public class Occurrence implements Serializable {
 
     public Occurrence(Integer occurrenceId, String type, String description, Date createTime) {
         this.occurrenceId = occurrenceId;
-        this.type = type;
-        this.description = description;
-        this.createTime = createTime;
+        this.type = new SimpleStringProperty(type);
+        this.description = new SimpleStringProperty(description);
+        this.createTime = new SimpleObjectProperty<>(createTime);
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "occurrence_id", nullable = false)
     public Integer getOccurrenceId() {
         return occurrenceId;
     }
@@ -78,30 +81,51 @@ public class Occurrence implements Serializable {
         this.occurrenceId = occurrenceId;
     }
 
+    @Basic(optional = false)
+    @Column(name = "type",nullable = false, length = 6)
     public String getType() {
+        return type.get();
+    }
+
+    public void setType(String occurrence) {
+        this.type.set(occurrence);
+    }
+
+    public StringProperty occurrenceProperty() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
+    @Basic(optional = false)
+    @Column(name = "description",nullable = false, length = 127)
     public String getDescription() {
-        return description;
+        return description.get();
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description.set(description);
     }
 
+    public StringProperty descriptionProperty() {
+        return description;
+    }
+
+    @Basic(optional = false)
+    @Column(name = "create_time", nullable = false)
+    // @Temporal(TemporalType.TIMESTAMP)
     public Date getCreateTime() {
-        return createTime;
+        return createTime.get();
     }
 
     public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+        this.createTime.set(createTime);
     }
 
+    public ObjectProperty<Date> dateProperty() {
+        return createTime;
+    }
+
+    @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     public Device getDevice() {
         return device;
     }
@@ -134,5 +158,5 @@ public class Occurrence implements Serializable {
     public String toString() {
         return "com.net.multiway.ofm.entities.Occurrence[ occurrenceId=" + occurrenceId + " ]";
     }
-    
+
 }

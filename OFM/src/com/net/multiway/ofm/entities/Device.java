@@ -5,9 +5,12 @@
  */
 package com.net.multiway.ofm.entities;
 
+import com.net.multiway.ofm.utils.Utils;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -46,53 +49,49 @@ import javax.persistence.UniqueConstraint;
 public class Device implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "device_id", nullable = false)
+
     private Integer deviceId;
-    @Basic(optional = false)
-    @Column(nullable = false, length = 63)
+
     private String name;
-    @Basic(optional = false)
-    @Column(nullable = false, length = 32)
-    private String ip;
-    @Basic(optional = false)
-    @Column(nullable = false, length = 32)
-    private String mask;
-    @Basic(optional = false)
-    @Column(nullable = false, length = 32)
-    private String gateway;
-    @Basic(optional = false)
-    @Column(name = "create_time", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+
+    private StringProperty ip;
+
+    private StringProperty mask;
+
+    private StringProperty gateway;
+
     private Date createTime;
-    @Column(name = "update_time")
-    @Temporal(TemporalType.TIMESTAMP)
+
     private Date updateTime;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+
     private Data data;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+
     private Parameter parameter;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+
     private Limit limit;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+
     private List<Occurrence> occurrenceList;
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+
     private User user;
 
     public Device() {
+        this.ip = new SimpleStringProperty();
+        this.mask = new SimpleStringProperty();
+        this.gateway = new SimpleStringProperty();
     }
 
     public Device(String name, String ip, String mask, String gateway, Date createTime) {
         this.name = name;
-        this.ip = ip;
-        this.mask = mask;
-        this.gateway = gateway;
+        this.ip = new SimpleStringProperty(ip);
+        this.mask = new SimpleStringProperty(mask);
+        this.gateway = new SimpleStringProperty(gateway);
         this.createTime = createTime;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "device_id", nullable = false)
     public Integer getDeviceId() {
         return deviceId;
     }
@@ -101,6 +100,8 @@ public class Device implements Serializable {
         this.deviceId = deviceId;
     }
 
+    @Basic(optional = false)
+    @Column(name = "name",nullable = false, length = 63)
     public String getName() {
         return name;
     }
@@ -109,30 +110,51 @@ public class Device implements Serializable {
         this.name = name;
     }
 
+    @Basic(optional = false)
+    @Column(name = "ip",nullable = false, length = 32)
     public String getIp() {
+        return ip.get();
+    }
+
+    public StringProperty ipProperty() {
         return ip;
     }
 
     public void setIp(String ip) {
-        this.ip = ip;
+        this.ip.set(Utils.fillAddress(ip));
     }
 
+    @Basic(optional = false)
+    @Column(name = "mask",nullable = false, length = 32)
     public String getMask() {
+        return mask.get();
+    }
+
+    public StringProperty maskProperty() {
         return mask;
     }
 
     public void setMask(String mask) {
-        this.mask = mask;
+        this.mask.set(Utils.fillAddress(mask));
     }
 
+    @Basic(optional = false)
+    @Column(name = "gateway",nullable = false, length = 32)
     public String getGateway() {
+        return gateway.get();
+    }
+
+    public StringProperty gatewayProperty() {
         return gateway;
     }
 
     public void setGateway(String gateway) {
-        this.gateway = gateway;
+        this.gateway.set(Utils.fillAddress(gateway));
     }
 
+    @Basic(optional = false)
+    @Column(name = "create_time", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     public Date getCreateTime() {
         return createTime;
     }
@@ -141,6 +163,8 @@ public class Device implements Serializable {
         this.createTime = createTime;
     }
 
+    @Column(name = "update_time")
+    @Temporal(TemporalType.TIMESTAMP)
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -149,6 +173,7 @@ public class Device implements Serializable {
         this.updateTime = updateTime;
     }
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     public Data getData() {
         return data;
     }
@@ -157,6 +182,7 @@ public class Device implements Serializable {
         this.data = data;
     }
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     public Parameter getParameter() {
         return parameter;
     }
@@ -165,6 +191,7 @@ public class Device implements Serializable {
         this.parameter = parameter;
     }
 
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     public Limit getLimit() {
         return limit;
     }
@@ -173,6 +200,7 @@ public class Device implements Serializable {
         this.limit = limit;
     }
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
     public List<Occurrence> getOccurrenceList() {
         return occurrenceList;
     }
@@ -181,6 +209,8 @@ public class Device implements Serializable {
         this.occurrenceList = occurrenceList;
     }
 
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     public User getUser() {
         return user;
     }
@@ -213,5 +243,8 @@ public class Device implements Serializable {
     public String toString() {
         return "com.net.multiway.ofm.entities.Device[ deviceId=" + deviceId + " ]";
     }
-    
+
+    public String takeData() {
+        return this.ip.get() + this.mask.get() + this.gateway.get();
+    }
 }

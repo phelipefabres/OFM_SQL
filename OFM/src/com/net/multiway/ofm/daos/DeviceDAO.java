@@ -38,7 +38,7 @@ public class DeviceDAO implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Device device) {
+    public void create(Device device) throws IllegalOrphanException {
         if (device.getOccurrenceList() == null) {
             device.setOccurrenceList(new ArrayList<Occurrence>());
         }
