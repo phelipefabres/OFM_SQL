@@ -57,11 +57,11 @@ public abstract class ControllerExec implements Initializable, IController {
     @FXML
     protected TableView<DataEvent> resultTable;
     @FXML
-    protected TableColumn<DataEvent, Long> numeroColumn;
+    protected TableColumn<DataEvent, Integer> numeroColumn;
     @FXML
     protected TableColumn<DataEvent, Integer> typeColumn;
     @FXML
-    protected TableColumn<DataEvent, Integer> distanceColumn;
+    protected TableColumn<DataEvent, Float> distanceColumn;
     @FXML
     protected TableColumn<DataEvent, Float> insertLossColumn;
     @FXML
@@ -74,47 +74,46 @@ public abstract class ControllerExec implements Initializable, IController {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         mappingParametersTable();
-        emf = emf = Persistence.createEntityManagerFactory("OFMPU");
+        emf = Persistence.createEntityManagerFactory("ofmPU");
     }
 
     protected void plotGraph() {
 
-        ObservableList<XYChart.Data<Integer, Integer>> dataset = FXCollections.observableArrayList();
-
-        int i = 1;
-        float dataPrevious = 0;
-        int m = receiveParameters.getData().getDataEventList().get(1).getDistance();
+        ObservableList<XYChart.Data<Float, Float>> dataset = FXCollections.observableArrayList();
+        int i = 0;
+        int k = 0;
+        int n1 = receiveParameters.getData().getRangeOfTest();
         int n = receiveParameters.getData().getDataGraphicList().size();
         int fz = receiveParameters.getData().getSampleFrequency();
+        float m = receiveParameters.getData().getDataEventList().get(k).getDistance();
+
         for (DataGraphic data : receiveParameters.getData().getDataGraphicList()) {
-            int c = data.getValue();
+            int c = data.getPoint();
+            float dx = 2 * n * fz;
+            dx = (i / dx) * 1000000000;
 
-            float d;
-//            if (i == m) {
-//                d = m * ((float) (c) / ((float) (2 * n * fz))*100000   );
-//                System.out.println("Novo = " + d);
-//                System.out.println("antigo = " + c);
-//                System.out.println("Distancia = " + m);
-//                System.out.println("Size = " + n);
-//                System.out.println("dx = " + ((float) (c) / (float) (2 * n * fz)) *100000);
-//                receiveParameters.getData().getDataEventList().get(1).setDistance((int) d);
-//            break;
-//            }
-//            else {
-                d = (((float) (c) / (float) (2 * n * fz)) * 1000000);
-//            }
+            float mdx = 2 * n1 * fz;
+            mdx = (i / mdx);
 
-//            System.out.println("antigo = " + data.getValue());
-//            System.out.println("frequencia = " + receiveParameters.getData().getSampleFrequency());
-//dataPrevious = dataPrevious * i++;
-            XYChart.Data<Integer, Integer> coordData = new XYChart.Data<>(i++, c);
-            coordData.setNode(
-                    new HoveredThresholdNode(dataPrevious, c));
+            if (i == m) {
+                receiveParameters.getData().getDataEventList().get(k).setDistance(mdx * c * 10000);
+                System.out.println("MDX = " + mdx * c * 10000);
+                k++;    
+            }
+
+            XYChart.Data<Float, Float> coordData = new XYChart.Data<>(dx, (float) c / 1000);
+
             dataset.add(coordData);
-            dataPrevious = d;
+
+            i++;
+            
+            if (k < receiveParameters.getData().getDataEventList().size()) {
+                m = receiveParameters.getData().getDataEventList().get(k).getDistance();
+            }
         }
 
-        grafico.getData().add(new XYChart.Series("Gráfico", FXCollections.observableArrayList(dataset)));
+        grafico.getData().add(new XYChart.Series("My portfolio", FXCollections.observableArrayList(dataset)));
+
     }
 
     protected void exportData() {
@@ -132,9 +131,10 @@ public abstract class ControllerExec implements Initializable, IController {
     }
 
     protected void mappingParametersTable() {
+        numeroColumn.setCellValueFactory(cellData -> cellData.getValue().dataEventIdProperty());
         typeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         distanceColumn.setCellValueFactory(cellData -> cellData.getValue().distanceProperty());
-        insertLossColumn.setCellValueFactory(cellData -> cellData.getValue().insertLossProperty());
+        insertLossColumn.setCellValueFactory(cellData -> cellData.getValue().insertionLossProperty());
         reflectLossColumn.setCellValueFactory(cellData -> cellData.getValue().echoLossProperty());
         accumulationColumn.setCellValueFactory(cellData -> cellData.getValue().acumulativeLossProperty());
         attenuationCoefficientColumn.setCellValueFactory(cellData -> cellData.getValue().averageAttenuationCoefficientProperty());

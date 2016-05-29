@@ -75,7 +75,7 @@ public class RangeDialogController implements Initializable, IController {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        LimitDAO dao = new LimitDAO(Persistence.createEntityManagerFactory("OFMPU"));
+        LimitDAO dao = new LimitDAO(Persistence.createEntityManagerFactory("ofmPU"));
         limits = dao.findLimit(1);
         if (limits == null) {
             limits = new Limit(3, 3, 3, 5, 5, 5, 3, 5, 5, 3, new Date());
@@ -119,9 +119,6 @@ public class RangeDialogController implements Initializable, IController {
      *
      * @param vehicle
      */
-    public void setRange() {
-    }
-
     @FXML
     private void onHandleEdit(ActionEvent event) {
         prepareForm(Mode.EDIT);
@@ -150,13 +147,7 @@ public class RangeDialogController implements Initializable, IController {
         acumulationRedField.setText(limits.getAcumulationYellow().toString());
         attenuationRedField.setText(limits.getAttenuationYellow().toString());
 
-        
         prepareForm(Mode.VIEW);
-    }
-
-    @Override
-    public void handleSave(ActionEvent event) {
-
     }
 
     @Override
@@ -212,8 +203,13 @@ public class RangeDialogController implements Initializable, IController {
     }
 
     @FXML
-    private void onHandleClose(ActionEvent event) {
+    private void onHandleOk(ActionEvent event) {
         dialogStage.close();
+    }
+
+    @Override
+    public void handleSave(ActionEvent event) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

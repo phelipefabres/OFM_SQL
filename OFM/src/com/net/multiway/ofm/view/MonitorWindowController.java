@@ -6,6 +6,7 @@
 package com.net.multiway.ofm.view;
 
 import com.net.multiway.ofm.MainApp;
+import com.net.multiway.ofm.daos.DeviceDAO;
 import com.net.multiway.ofm.daos.OccurrenceDAO;
 import com.net.multiway.ofm.entities.DataEvent;
 import com.net.multiway.ofm.entities.Device;
@@ -121,7 +122,7 @@ public class MonitorWindowController extends ControllerExec {
     @FXML
     private TableView<Occurrence> occurrenceTable;
     @FXML
-    private TableColumn<Occurrence, Long> idColumm;
+    private TableColumn<Occurrence, Integer> idColumm;
     @FXML
     private TableColumn<Occurrence, String> occurrenceColumm;
     @FXML
@@ -231,7 +232,7 @@ public class MonitorWindowController extends ControllerExec {
                             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                             executionLabel.setText(msg);
 //                            limits.setEventsNumber(receiveParameters.getData().getEvents().size());
-                            saveOccurrence();
+                            saveOccurrence(receiveParameters.getData().getDataEventList().size());
                             OccurrenceDAO dao = new OccurrenceDAO(emf);
                             displayOccurrence(dao.findOccurrenceEntities());
                         }
@@ -299,7 +300,6 @@ public class MonitorWindowController extends ControllerExec {
 
     void setReference(Device reference) {
 
-       
         this.parameters = reference.getParameter();
         this.device = reference;
 
@@ -327,31 +327,37 @@ public class MonitorWindowController extends ControllerExec {
                 occurrenceList.add(result);
             });
             occurrenceTable.setItems(occurrenceList);
-//            idColumm.setCellValueFactory(cellData -> cellData.getValue().idProperty());
-            occurrenceColumm.setCellValueFactory(cellData -> cellData.getValue().occurrenceProperty());
+            idColumm.setCellValueFactory(cellData -> cellData.getValue().occurrenceIdProperty());
+            occurrenceColumm.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
             descriptionColumm.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
-            dateColumm.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
+            dateColumm.setCellValueFactory(cellData -> cellData.getValue().createTimeProperty());
 
         }
 
     }
 
-    public void saveOccurrence() throws Exception {
+    public void saveOccurrence(int eventSize) throws Exception {
 
-        Occurrence occurrence2 = new Occurrence();
+        Occurrence occurr = new Occurrence();
         LocalDateTime timePoint = LocalDateTime.now();
+        DeviceDAO deviceDao = new DeviceDAO(emf);
+        Device deviceReference = deviceDao.findDevice(1);
+        if (eventSize != deviceReference.getData().getDataEventList().size()) {
+            occurr.setType("Vermelho");
+            occurr.setDescription("Erro! Número de enventos diferente da referência!");
+            occurr.setCreateTime(new Date());
 
-//        if (limits.getEventsNumber() < receiveParameters.getData().getEvents().size()) {
-//            occurrence2.setOccurrence("Vermelho");
-//            occurrence2.setDescription("Algum rompimento pode ter sido encontrado!");
-//            occurrence2.setDate(timePoint.toString());
-//        } else {
-//            occurrence2.setOccurrence("Verde");
-//            occurrence2.setDescription("Nenhum erro foi encontrado!");
-//            occurrence2.setDate(timePoint.toString());
-//        }
-//
-//        DataOccurrenceDAO dao = new DataOccurrenceDAO();
-//        dao.create(occurrence2);
+        } else {
+            occurr.setType("Verde");
+            occurr.setDescription("Nenhum erro foi encontrado!");
+            occurr.setCreateTime(new Date());
+        }
+
+        occurr.setDevice(device);
+        OccurrenceDAO dao = new OccurrenceDAO(emf);
+
+        occurr.setDevice(device);
+        dao.create(occurr);
+        device.getOccurrenceList().add(occurr);
     }
 }

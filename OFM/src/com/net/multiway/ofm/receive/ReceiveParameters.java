@@ -109,7 +109,7 @@ public class ReceiveParameters extends Package {
         for (int i = 0; i < this.length; i++) {
             DataEvent dt = new DataEvent();
             in.read(d);
-            dt.setDistance(Utils.byte4ToInt(d));
+            dt.setDistance((float)Utils.byte4ToInt(d));
             in.read(d);
             dt.setType(Utils.byte4ToInt(d));
             in.read(d);
@@ -174,7 +174,7 @@ public class ReceiveParameters extends Package {
         out.println("/**************************************************************/");
 
         for (DataGraphic value : data.getDataGraphicList()) {
-            out.println(value.getValue());
+            out.println(value.getPoint());
         }
         out.println();
     }

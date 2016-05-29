@@ -40,11 +40,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
@@ -101,6 +105,8 @@ public class ConfigurationWindowController extends ControllerExec {
 
     @FXML
     private Label executionLabel;
+    @FXML
+    private Button buttonEditLimit;
 
     public void setLimits(Limit limits) {
         this.limits = limits;
@@ -124,21 +130,23 @@ public class ConfigurationWindowController extends ControllerExec {
         if (devicesList.getItems().size() > 0) {
             device = devicesList.getItems().get(0);
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, "Devices carregados na tela...");
-//            DataReferenceDAO daop = new DataReferenceDAO();
-//            reference = daop.find(device.getID());
             parameters = device.getParameter();
+            limits = device.getLimit();
         } else {
             device = null;
-//            reference = null;
         }
 
         if (parameters == null) {
             parameters = new Parameter(0, 0, 15000, 1550, 1, 1.4685f, 0, 5.0f, 65.0f, 0, 1, 1, 10, new Date());
         }
 
+        if (limits == null) {
+            limits = new Limit(3, 3, 3, 5, 5, 5, 3, 5, 5, 3, new Date());
+        }
+
         updateParameters();
 
-        measureRangeField.setValue(parameters.getMeasuringRangeOfTest());
+        measureRangeField.setValue(parameters.getMeasuringRangeOfTest() * 1000);
         pulseWidthField.setValue(parameters.getTestPulseWidth());
         measureTimeField.setValue(parameters.getMeasuringTime() / 1000);
         waveLengthField.setValue(parameters.getTestWaveLength());
@@ -156,6 +164,7 @@ public class ConfigurationWindowController extends ControllerExec {
         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
         cycleTimeField.setText(parameters.getCycleTime().toString());
+
     }
 
     @FXML
@@ -315,7 +324,7 @@ public class ConfigurationWindowController extends ControllerExec {
                 AlertDialog.IncorrectRangeField("Reflaction Threshold", 20, 80);
             } else {
                 try {
-                    parameters.setMeasuringRangeOfTest(Integer.parseInt(measureRangeField.getValue().toString())*1000);
+                    parameters.setMeasuringRangeOfTest(Integer.parseInt(measureRangeField.getValue().toString()) * 1000);
                     parameters.setTestPulseWidth(Integer.parseInt(pulseWidthField.getValue().toString()));
                     parameters.setMeasuringTime(Integer.parseInt(measureTimeField.getValue().toString()) * 1000);
                     parameters.setTestWaveLength(Integer.parseInt(waveLengthField.getValue().toString()));
@@ -361,7 +370,7 @@ public class ConfigurationWindowController extends ControllerExec {
                         }
                         buttonExecute.setDisable(true);
                         buttonMonitor.setDisable(true);
-
+                        System.out.println("MM =" + parameters.getMeasureMode());
                         host.connect(parameters);
 
                         return null;
@@ -427,17 +436,13 @@ public class ConfigurationWindowController extends ControllerExec {
 
     @FXML
     private void onHandleSetReference() {
-        if (receiveParameters != null && receiveValues != null && device != null) {
+        if (receiveParameters != null && receiveValues != null && device != null && limits != null) {
             DeviceDAO dao = new DeviceDAO(emf);
             try {
 
-                device.setData(receiveParameters.getData());
-
-                device.setParameter(parameters);
-
-                if (device.getDeviceId() != null) {
-                    dao.edit(device);
-                } else {
+                //device = dao.findDevice(1);
+                Device d = dao.findDevice(1);
+                if (d == null) {
                     UserDAO userDao = new UserDAO(emf);
                     User user = userDao.findUser(1);
                     if (user == null) {
@@ -455,56 +460,73 @@ public class ConfigurationWindowController extends ControllerExec {
                     DataDAO dataDao = new DataDAO(emf);
                     DataGraphicDAO dataGraphicDao = new DataGraphicDAO(emf);
                     DataEventDAO dataEventDao = new DataEventDAO(emf);
+                    System.out.println("name = " + user.getUsername());
 
-                    Parameter parameter = parameters;
-                    parameter.setDevice(device); // enlace bidirecional
-                    parameter.setUser(user);
+                    d = new Device();
+                    d.setGateway(device.getGateway());
+                    d.setIp(device.getIp());
+                    d.setMask(device.getMask());
+                    d.setName("Device 1");
+                    d.setUser(user);
+                    d.setCreateTime(new Date());
+                    d.setStatus("Active");
+                    deviceDao.create(d);
+                    Parameter parameter = new Parameter();
+                    //parameter.copy(parameters);
+
+//                    System.out.println(device.getParameter().toString());
+//                    System.out.println(device.getLimit().toString());
+//                    System.out.println(device.getData().toString());
+                    parameters.setDevice(d); // enlace bidirecional
+                    parameters.setUser(user);
+                    parameters.setCreateTime(new Date());
+                    parameter.copy(parameters);
                     parameterDao.create(parameter);
-                    device.setParameter(parameter); // enlace bidirecional
+                    d.setParameter(parameter); // enlace bidirecional
 
-                    Limit limit = limits;
-                    limit.setDevice(device); // enlace bidirecional
+                    Limit limit = new Limit();
+                    System.out.println(limits.getAcumulationGreen());
+                    limit.setDevice(d); // enlace bidirecional
                     limit.setUser(user);
+                    limit.setCreateTime(new Date());
+                    limit.copy(limits);
                     limitDao.create(limit);
-                    device.setLimit(limit); //enlace bidirecional
+                    d.setLimit(limit); //enlace bidirecional
 
-                    Data data = receiveParameters.getData();
-                    data.setDevice(device); //enlace bidirecional
+                    Data data = new Data();
+
+                    data.setDevice(d); //enlace bidirecional
+                    data.setUser(user);
+                    data.copy(receiveParameters.getData());
                     dataDao.create(data);
-                    device.setData(data); //enlace bidirecional
-                    
-//                    ArrayList<DataEvent> even = (ArrayList<DataEvent>) device.getData().getDataEventList();
-//                    DataEventDAO edao = new DataEventDAO(emf);
-//                    for (int i = 0; i < even.size(); i++) {
-//                        edao.create(even.get(i));
-//                    }
-//
-//                    DataDAO ddao = new DataDAO(emf);
-//                    ddao.create(device.getData());
-//
-//                    ArrayList<DataGraphic> list = (ArrayList<DataGraphic>) device.getData().getDataGraphicList();
-//                    DataGraphicDAO gdao = new DataGraphicDAO(emf);
+                    d.setData(data); //enlace bidirecional
+
+                    ArrayList<DataEvent> even = (ArrayList<DataEvent>) receiveParameters.getData().getDataEventList();
+                    //  DataEventDAO edao = new DataEventDAO(emf);
+                    for (int i = 0; i < even.size(); i++) {
+                        DataEvent dataEvent = even.get(i);
+                        dataEvent.setData(data);
+                        dataEventDao.create(dataEvent);
+                        data.getDataEventList().add(dataEvent);
+                    }
+//                    ArrayList<DataGraphic> list = (ArrayList<DataGraphic>) receiveParameters.getData().getDataGraphicList();
 //                    for (int i = 0; i < list.size(); i++) {
-//                        gdao.create(list.get(i));
-//                    }
+//                        DataGraphic dataGraphic = list.get(i); //enlace bidirecional
+//                        dataGraphic.setData(data);
+//                        dataGraphicDao.create(dataGraphic);
+//                        // data.getDataGraphicList().add(dataGraphic);
 //
-//                    ParameterDAO pdao = new ParameterDAO(emf);
-//                    pdao.create(parameters);
-//                    dao.create(device);
+//                    }
+                    device = d;
                 }
-//                LimitDAO daoL = new LimitDAO(emf);
-//                limits.setEventsNumber(receiveParameters.getData().getDataGraphicList().size());
-//                if (limits.getID() != null) {
-//                    daoL.edit(limits);
-//                } else {
-//                    daoL.create(limits);
-//                }
+
             } catch (Exception ex) {
                 Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
                 AlertDialog.exception(ex);
             }
 
             buttonReference.setDisable(true);
+
         } else {
             String msg = "Não há dados a serem salvos como referência.";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
@@ -616,6 +638,40 @@ public class ConfigurationWindowController extends ControllerExec {
                 return cell;
             }
         });
+    }
+
+    @FXML
+    private void onHandleEditLimit(ActionEvent event) {
+        Limit limit = new Limit();
+        try {
+            // Carrega o arquivo fxml e cria um novo stage para a janela popup.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(View.RangeDialog.getResource()));
+            AnchorPane page;
+
+            page = (AnchorPane) loader.load();
+
+            // Cria o palco dialogStage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Editar Limites");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(MainApp.getInstance().getPrimaryStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+//            // Define o device no controller.
+            RangeDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+
+            // Mostra a janela e espera até o usuário fechar.
+            dialogStage.showAndWait();
+            this.limits = controller.getLimits();
+
+        } catch (IOException ex) {
+            Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            AlertDialog.exception(ex);
+        }
+
     }
 
 }

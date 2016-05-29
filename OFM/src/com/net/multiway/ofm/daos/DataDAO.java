@@ -5,21 +5,22 @@
  */
 package com.net.multiway.ofm.daos;
 
-import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
-import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
-import com.net.multiway.ofm.entities.Data;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import com.net.multiway.ofm.entities.Device;
+import com.net.multiway.ofm.entities.User;
 import com.net.multiway.ofm.entities.DataEvent;
 import java.util.ArrayList;
 import java.util.List;
-import com.net.multiway.ofm.entities.DataGraphic;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
+import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
+import com.net.multiway.ofm.entities.Data;
+import com.net.multiway.ofm.entities.DataGraphic;
 
 /**
  *
@@ -66,6 +67,11 @@ public class DataDAO implements Serializable {
                 device = em.getReference(device.getClass(), device.getDeviceId());
                 data.setDevice(device);
             }
+            User user = data.getUser();
+            if (user != null) {
+                user = em.getReference(user.getClass(), user.getUserId());
+                data.setUser(user);
+            }
             List<DataEvent> attachedDataEventList = new ArrayList<DataEvent>();
             for (DataEvent dataEventListDataEventToAttach : data.getDataEventList()) {
                 dataEventListDataEventToAttach = em.getReference(dataEventListDataEventToAttach.getClass(), dataEventListDataEventToAttach.getDataEventId());
@@ -82,6 +88,10 @@ public class DataDAO implements Serializable {
             if (device != null) {
                 device.setData(data);
                 device = em.merge(device);
+            }
+            if (user != null) {
+                user.getDataList().add(data);
+                user = em.merge(user);
             }
             for (DataEvent dataEventListDataEvent : data.getDataEventList()) {
                 Data oldDataOfDataEventListDataEvent = dataEventListDataEvent.getData();
@@ -117,6 +127,8 @@ public class DataDAO implements Serializable {
             Data persistentData = em.find(Data.class, data.getDataId());
             Device deviceOld = persistentData.getDevice();
             Device deviceNew = data.getDevice();
+            User userOld = persistentData.getUser();
+            User userNew = data.getUser();
             List<DataEvent> dataEventListOld = persistentData.getDataEventList();
             List<DataEvent> dataEventListNew = data.getDataEventList();
             List<DataGraphic> dataGraphicListOld = persistentData.getDataGraphicList();
@@ -154,6 +166,10 @@ public class DataDAO implements Serializable {
                 deviceNew = em.getReference(deviceNew.getClass(), deviceNew.getDeviceId());
                 data.setDevice(deviceNew);
             }
+            if (userNew != null) {
+                userNew = em.getReference(userNew.getClass(), userNew.getUserId());
+                data.setUser(userNew);
+            }
             List<DataEvent> attachedDataEventListNew = new ArrayList<DataEvent>();
             for (DataEvent dataEventListNewDataEventToAttach : dataEventListNew) {
                 dataEventListNewDataEventToAttach = em.getReference(dataEventListNewDataEventToAttach.getClass(), dataEventListNewDataEventToAttach.getDataEventId());
@@ -176,6 +192,14 @@ public class DataDAO implements Serializable {
             if (deviceNew != null && !deviceNew.equals(deviceOld)) {
                 deviceNew.setData(data);
                 deviceNew = em.merge(deviceNew);
+            }
+            if (userOld != null && !userOld.equals(userNew)) {
+                userOld.getDataList().remove(data);
+                userOld = em.merge(userOld);
+            }
+            if (userNew != null && !userNew.equals(userOld)) {
+                userNew.getDataList().add(data);
+                userNew = em.merge(userNew);
             }
             for (DataEvent dataEventListNewDataEvent : dataEventListNew) {
                 if (!dataEventListOld.contains(dataEventListNewDataEvent)) {
@@ -228,28 +252,35 @@ public class DataDAO implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The data with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            List<DataEvent> dataEventListOrphanCheck = data.getDataEventList();
-            for (DataEvent dataEventListOrphanCheckDataEvent : dataEventListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Data (" + data + ") cannot be destroyed since the DataEvent " + dataEventListOrphanCheckDataEvent + " in its dataEventList field has a non-nullable data field.");
-            }
-            List<DataGraphic> dataGraphicListOrphanCheck = data.getDataGraphicList();
-            for (DataGraphic dataGraphicListOrphanCheckDataGraphic : dataGraphicListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Data (" + data + ") cannot be destroyed since the DataGraphic " + dataGraphicListOrphanCheckDataGraphic + " in its dataGraphicList field has a non-nullable data field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
+            data.getDataEventList().clear();
+            data.getDataGraphicList().clear();
+//            List<String> illegalOrphanMessages = null;
+//            List<DataEvent> dataEventListOrphanCheck = data.getDataEventList();
+//            for (DataEvent dataEventListOrphanCheckDataEvent : dataEventListOrphanCheck) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Data (" + data + ") cannot be destroyed since the DataEvent " + dataEventListOrphanCheckDataEvent + " in its dataEventList field has a non-nullable data field.");
+//            }
+//            List<DataGraphic> dataGraphicListOrphanCheck = data.getDataGraphicList();
+//            for (DataGraphic dataGraphicListOrphanCheckDataGraphic : dataGraphicListOrphanCheck) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Data (" + data + ") cannot be destroyed since the DataGraphic " + dataGraphicListOrphanCheckDataGraphic + " in its dataGraphicList field has a non-nullable data field.");
+//            }
+//            if (illegalOrphanMessages != null) {
+//                throw new IllegalOrphanException(illegalOrphanMessages);
+//            }
             Device device = data.getDevice();
             if (device != null) {
                 device.setData(null);
                 device = em.merge(device);
+            }
+            User user = data.getUser();
+            if (user != null) {
+                user.getDataList().remove(data);
+                user = em.merge(user);
             }
             em.remove(data);
             em.getTransaction().commit();

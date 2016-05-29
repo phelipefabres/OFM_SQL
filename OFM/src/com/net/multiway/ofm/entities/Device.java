@@ -5,17 +5,28 @@
  */
 package com.net.multiway.ofm.entities;
 
-import com.net.multiway.ofm.utils.Utils;
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Date;
 import java.util.List;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +46,8 @@ import javax.persistence.UniqueConstraint;
  * @author joshua
  */
 @Entity
-@Table(catalog = "ofm", schema = "", uniqueConstraints = {
+@Access(AccessType.PROPERTY)
+@Table(schema = "ofm", name = "device", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"name"})})
 @NamedQueries({
     @NamedQuery(name = "Device.findAll", query = "SELECT d FROM Device d"),
@@ -46,177 +58,637 @@ import javax.persistence.UniqueConstraint;
     @NamedQuery(name = "Device.findByGateway", query = "SELECT d FROM Device d WHERE d.gateway = :gateway"),
     @NamedQuery(name = "Device.findByCreateTime", query = "SELECT d FROM Device d WHERE d.createTime = :createTime"),
     @NamedQuery(name = "Device.findByUpdateTime", query = "SELECT d FROM Device d WHERE d.updateTime = :updateTime")})
-public class Device implements Serializable {
+public class Device implements Externalizable {
 
     private static final long serialVersionUID = 1L;
-
-    private Integer deviceId;
-
-    private String name;
-
-    private StringProperty ip;
-
-    private StringProperty mask;
-
-    private StringProperty gateway;
-
-    private Date createTime;
-
-    private Date updateTime;
-
-    private Data data;
-
-    private Parameter parameter;
-
-    private Limit limit;
-
-    private List<Occurrence> occurrenceList;
-
-    private User user;
 
     public Device() {
         this.ip = new SimpleStringProperty();
         this.mask = new SimpleStringProperty();
         this.gateway = new SimpleStringProperty();
+        this.createTime = new SimpleObjectProperty<>();
+        this.status = new SimpleStringProperty();
     }
 
-    public Device(String name, String ip, String mask, String gateway, Date createTime) {
-        this.name = name;
+    public Device(Integer deviceId, String name, String ip, String mask, String gateway, Date createTime, String status) {
+        this.deviceId = new SimpleObjectProperty<>(deviceId);
+        this.name = new SimpleStringProperty(name);
         this.ip = new SimpleStringProperty(ip);
         this.mask = new SimpleStringProperty(mask);
         this.gateway = new SimpleStringProperty(gateway);
-        this.createTime = createTime;
+        this.createTime = new SimpleObjectProperty<>(createTime);
+        this.status = new SimpleStringProperty(status);
+        this._deviceId = deviceId;
+        this._name = name;
+        this._ip = ip;
+        this._mask = mask;
+        this._gateway = gateway;
+        this._createTime = createTime;
+        this._status = status;
+
     }
+
+    public Device(String name, String ip, String mask, String gateway, Date createTime, String status) {
+        this.name = new SimpleStringProperty(name);
+        this.ip = new SimpleStringProperty(ip);
+        this.mask = new SimpleStringProperty(mask);
+        this.gateway = new SimpleStringProperty(gateway);
+        this.createTime = new SimpleObjectProperty<>(createTime);
+        this.status = new SimpleStringProperty(status);
+        this._name = name;
+        this._ip = ip;
+        this._mask = mask;
+        this._gateway = gateway;
+        this._createTime = createTime;
+        this._status = status;
+
+    }
+//
+//    private ObjectProperty<Integer> deviceId;
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Basic(optional = false)
+//    @Column(name = "device_id", nullable = false)
+//    public Integer getDeviceId() {
+//
+//        return deviceId.get();
+//
+//    }
+//
+//    public void setDeviceId(Integer deviceId) {
+//
+//        this.deviceId.set(deviceId);
+//
+//    }
+//
+//    public ObjectProperty<Integer> deviceIdProperty() {
+//
+//        return deviceId;
+//    }
+//
+//    private StringProperty name;
+//
+//    @Basic(optional = false)
+//    @Column(name = "name", nullable = false, length = 63)
+//    public String getName() {
+//
+//        return name.get();
+//
+//    }
+//
+//    public void setName(String name) {
+//
+//        this.name.set(name);
+//
+//    }
+//
+//    public StringProperty nameProperty() {
+//
+//        return name;
+//    }
+//
+//    private StringProperty ip;
+//
+//    @Basic(optional = false)
+//    @Column(name = "ip", nullable = false, length = 32)
+//    public String getIp() {
+//
+//        return ip.get();
+//
+//    }
+//
+//    public void setIp(String ip) {
+//
+//        this.ip.set(ip);
+//
+//    }
+//
+//    public StringProperty ipProperty() {
+//
+//        return ip;
+//    }
+//
+//    private StringProperty mask;
+//
+//    @Basic(optional = false)
+//    @Column(name = "mask", nullable = false, length = 32)
+//    public String getMask() {
+//
+//        return mask.get();
+//
+//    }
+//
+//    public void setMask(String mask) {
+//
+//        this.mask.set(mask);
+//
+//    }
+//
+//    public StringProperty maskProperty() {
+//
+//        return mask;
+//    }
+//
+//    private StringProperty gateway;
+//
+//    @Basic(optional = false)
+//    @Column(name = "gateway", nullable = false, length = 32)
+//    public String getGateway() {
+//
+//        return gateway.get();
+//
+//    }
+//
+//    public void setGateway(String gateway) {
+//
+//        this.gateway.set(gateway);
+//
+//    }
+//
+//    public StringProperty gatewayProperty() {
+//
+//        return gateway;
+//    }
+//
+//    private Date createTime;
+//
+//    @Basic(optional = false)
+//    @Column(name = "create_time", nullable = false)
+//    @Temporal(TemporalType.TIMESTAMP)
+//    public Date getCreateTime() {
+//
+//        return createTime;
+//
+//    }
+//
+//    public void setCreateTime(Date createTime) {
+//
+//        this.createTime = createTime;
+//
+//    }
+//
+//    private Date updateTime;
+//
+//    @Column(name = "update_time")
+//    @Temporal(TemporalType.TIMESTAMP)
+//    public Date getUpdateTime() {
+//
+//        return updateTime;
+//
+//    }
+//
+//    public void setUpdateTime(Date updateTime) {
+//
+//        this.updateTime = updateTime;
+//
+//    }
+//
+//    private StringProperty status;
+//
+//    @Basic(optional = false)
+//    @Column(name = "status", nullable = false) // ('Active', 'Inactive')
+//    public String getStatus() {
+//
+//        return status.get();
+//
+//    }
+//
+//    public void setStatus(String status) {
+//
+//        this.status.set(status);
+//
+//    }
+//
+//    public StringProperty statusProperty() {
+//
+//        return status;
+//    }
+//
+//    private Data data;
+//
+//    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device")
+//    public Data getData() {
+//
+//        return data;
+//
+//    }
+//
+//    public void setData(Data data) {
+//
+//        this.data = data;
+//
+//    }
+//
+//    private Parameter parameter;
+//
+//    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device")
+//    public Parameter getParameter() {
+//
+//        return parameter;
+//
+//    }
+//
+//    public void setParameter(Parameter parameter) {
+//
+//        this.parameter = parameter;
+//
+//    }
+//
+//    private Limit limit;
+//
+//    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device")
+//    public Limit getLimit() {
+//
+//        return limit;
+//
+//    }
+//
+//    public void setLimit(Limit limit) {
+//
+//        this.limit = limit;
+//
+//    }
+//
+//    private List<Occurrence> occurrenceList;
+//
+//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device")
+//    public List<Occurrence> getOccurrenceList() {
+//
+//        return occurrenceList;
+//
+//    }
+//
+//    public void setOccurrenceList(List<Occurrence> occurrenceList) {
+//
+//        this.occurrenceList = occurrenceList;
+//
+//    }
+//
+//    private User user;
+//
+//    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+//    @ManyToOne(optional = false)
+//    public User getUser() {
+//        return user;
+//    }
+//
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
+    private ObjectProperty<Integer> deviceId;
+    private Integer _deviceId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "device_id", nullable = false)
     public Integer getDeviceId() {
-        return deviceId;
+        if (deviceId == null) {
+            return _deviceId;
+        } else {
+            return deviceId.get();
+        }
     }
 
     public void setDeviceId(Integer deviceId) {
-        this.deviceId = deviceId;
+        if (this.deviceId == null) {
+            this._deviceId = deviceId;
+        } else {
+            this.deviceId.set(deviceId);
+        }
     }
 
+    public ObjectProperty<Integer> deviceIdProperty() {
+        if (deviceId == null) {
+            deviceId = new SimpleObjectProperty<>(_deviceId);
+        }
+        return deviceId;
+    }
+
+    private StringProperty name;
+    private String _name;
+
     @Basic(optional = false)
-    @Column(name = "name",nullable = false, length = 63)
+    @Column(name = "name", nullable = false, length = 63)
     public String getName() {
-        return name;
+        if (name == null) {
+            return _name;
+        } else {
+            return name.get();
+        }
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (this.name == null) {
+            this._name = name;
+        } else {
+            this.name.set(name);
+        }
     }
+
+    public StringProperty nameProperty() {
+        if (name == null) {
+            name = new SimpleStringProperty(this, "name", _name);
+        }
+        return name;
+    }
+
+    private StringProperty ip;
+    private String _ip;
 
     @Basic(optional = false)
-    @Column(name = "ip",nullable = false, length = 32)
+    @Column(name = "ip", nullable = false, length = 32)
     public String getIp() {
-        return ip.get();
-    }
-
-    public StringProperty ipProperty() {
-        return ip;
+        if (ip == null) {
+            return _ip;
+        } else {
+            return ip.get();
+        }
     }
 
     public void setIp(String ip) {
-        this.ip.set(Utils.fillAddress(ip));
+        if (this.ip == null) {
+            this._ip = ip;
+        } else {
+            this.ip.set(ip);
+        }
     }
+
+    public StringProperty ipProperty() {
+        if (ip == null) {
+            ip = new SimpleStringProperty(this, "ip", _ip);
+        }
+        return ip;
+    }
+
+    private StringProperty mask;
+    private String _mask;
 
     @Basic(optional = false)
-    @Column(name = "mask",nullable = false, length = 32)
+    @Column(name = "mask", nullable = false, length = 32)
     public String getMask() {
-        return mask.get();
-    }
-
-    public StringProperty maskProperty() {
-        return mask;
+        if (mask == null) {
+            return _mask;
+        } else {
+            return mask.get();
+        }
     }
 
     public void setMask(String mask) {
-        this.mask.set(Utils.fillAddress(mask));
+        if (this.mask == null) {
+            this._mask = mask;
+        } else {
+            this.mask.set(mask);
+        }
     }
+
+    public StringProperty maskProperty() {
+        if (mask == null) {
+            mask = new SimpleStringProperty(this, "mask", _mask);
+        }
+        return mask;
+    }
+
+    private StringProperty gateway;
+    private String _gateway;
 
     @Basic(optional = false)
-    @Column(name = "gateway",nullable = false, length = 32)
+    @Column(name = "gateway", nullable = false, length = 32)
     public String getGateway() {
-        return gateway.get();
-    }
-
-    public StringProperty gatewayProperty() {
-        return gateway;
+        if (gateway == null) {
+            return _gateway;
+        } else {
+            return gateway.get();
+        }
     }
 
     public void setGateway(String gateway) {
-        this.gateway.set(Utils.fillAddress(gateway));
+        if (this.gateway == null) {
+            this._gateway = gateway;
+        } else {
+            this.gateway.set(gateway);
+        }
     }
+
+    public StringProperty gatewayProperty() {
+        if (gateway == null) {
+            gateway = new SimpleStringProperty(this, "gateway", _gateway);
+        }
+        return gateway;
+    }
+
+    private ObjectProperty<Date> createTime;
+    private Date _createTime;
 
     @Basic(optional = false)
     @Column(name = "create_time", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     public Date getCreateTime() {
-        return createTime;
+        if (createTime == null) {
+            return _createTime;
+        } else {
+            return createTime.get();
+        }
     }
 
     public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+        if (this.createTime == null) {
+            this._createTime = createTime;
+        } else {
+            this.createTime.set(createTime);
+        }
     }
+
+    public ObjectProperty<Date> createTimeProperty() {
+        if (createTime == null) {
+            createTime = new SimpleObjectProperty<>(this, "createTime", _createTime);
+        }
+        return createTime;
+    }
+
+    private ObjectProperty<Date> updateTime;
+    private Date _updateTime;
 
     @Column(name = "update_time")
     @Temporal(TemporalType.TIMESTAMP)
     public Date getUpdateTime() {
-        return updateTime;
+        if (updateTime == null) {
+            return _updateTime;
+        } else {
+            return updateTime.get();
+        }
     }
 
     public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+        if (this.updateTime == null) {
+            this._updateTime = updateTime;
+        } else {
+            this.updateTime.set(updateTime);
+        }
     }
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    public ObjectProperty<Date> updateTimeProperty() {
+        if (updateTime == null) {
+            updateTime = new SimpleObjectProperty<>(this, "updateTime", _updateTime);
+        }
+        return updateTime;
+    }
+
+    private StringProperty status;
+    private String _status;
+
+    @Basic(optional = false)
+    @Column(name = "status", nullable = false) // ('Active', 'Inactive')
+    public String getStatus() {
+        if (status == null) {
+            return _status;
+        } else {
+            return status.get();
+        }
+    }
+
+    public void setStatus(String status) {
+        if (this.status == null) {
+            this._status = status;
+        } else {
+            this.status.set(status);
+        }
+    }
+
+    public StringProperty statusProperty() {
+        if (status == null) {
+            status = new SimpleStringProperty(this, "status", _status);
+        }
+        return status;
+    }
+
+    private ObjectProperty<Data> data;
+    private Data _data;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device")
     public Data getData() {
-        return data;
+        if (data == null) {
+            return _data;
+        } else {
+            return data.get();
+        }
     }
 
     public void setData(Data data) {
-        this.data = data;
+        if (this.data == null) {
+            this._data = data;
+        } else {
+            this.data.set(data);
+        }
     }
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    public ObjectProperty<Data> dataProperty() {
+        if (data == null) {
+            data = new SimpleObjectProperty<>(this, "data", _data);
+        }
+        return data;
+    }
+
+    private ObjectProperty<Parameter> parameter;
+    private Parameter _parameter;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device")
     public Parameter getParameter() {
-        return parameter;
+        if (parameter == null) {
+            return _parameter;
+        } else {
+            return parameter.get();
+        }
     }
 
     public void setParameter(Parameter parameter) {
-        this.parameter = parameter;
+        if (this.parameter == null) {
+            this._parameter = parameter;
+        } else {
+            this.parameter.set(parameter);
+        }
     }
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    public ObjectProperty<Parameter> parameterProperty() {
+        if (parameter == null) {
+            parameter = new SimpleObjectProperty<>(this, "parameter", _parameter);
+        }
+        return parameter;
+    }
+
+    private ObjectProperty<Limit> limit;
+    private Limit _limit;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "device")
     public Limit getLimit() {
-        return limit;
+        if (limit == null) {
+            return _limit;
+        } else {
+            return limit.get();
+        }
     }
 
     public void setLimit(Limit limit) {
-        this.limit = limit;
+        if (this.limit == null) {
+            this._limit = limit;
+        } else {
+            this.limit.set(limit);
+        }
     }
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device", fetch = FetchType.LAZY)
+    public ObjectProperty<Limit> limitProperty() {
+        if (limit == null) {
+            limit = new SimpleObjectProperty<>(this, "limit", _limit);
+        }
+        return limit;
+    }
+
+    private List<Occurrence> occurrenceList;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "device")
     public List<Occurrence> getOccurrenceList() {
+
         return occurrenceList;
+
     }
 
     public void setOccurrenceList(List<Occurrence> occurrenceList) {
+
         this.occurrenceList = occurrenceList;
+
     }
 
+    public void addOccurrence(Occurrence occur) {
+        this.occurrenceList.add(occur);
+    }
+
+    private ObjectProperty<User> user;
+    private User _user;
+
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     public User getUser() {
-        return user;
+        if (user == null) {
+            return _user;
+        } else {
+            return user.get();
+        }
     }
 
     public void setUser(User user) {
-        this.user = user;
+        if (this.user == null) {
+            this._user = user;
+        } else {
+            this.user.set(user);
+        }
+    }
+
+    public ObjectProperty<User> userProperty() {
+        if (user == null) {
+            user = new SimpleObjectProperty<>(this, "user", _user);
+        }
+        return user;
     }
 
     @Override
@@ -241,10 +713,45 @@ public class Device implements Serializable {
 
     @Override
     public String toString() {
-        return "com.net.multiway.ofm.entities.Device[ deviceId=" + deviceId + " ]";
+        return "ofm.model.entities.Device[ deviceId=" + deviceId + "; name=" + name + " ]";
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(getDeviceId());
+        out.writeObject(getName());
+        out.writeObject(getIp());
+        out.writeObject(getMask());
+        out.writeObject(getGateway());
+        out.writeObject(getCreateTime());
+        out.writeObject(getUpdateTime());
+        out.writeObject(getStatus());
+        out.writeObject(getData());
+        out.writeObject(getParameter());
+        out.writeObject(getLimit());
+        out.writeObject(getOccurrenceList());
+        out.writeObject(getUser());
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        setDeviceId((Integer) in.readObject());
+        setName((String) in.readObject());
+        setIp((String) in.readObject());
+        setMask((String) in.readObject());
+        setGateway((String) in.readObject());
+        setCreateTime((Date) in.readObject());
+        setUpdateTime((Date) in.readObject());
+        setStatus((String) in.readObject());
+        setData((Data) in.readObject());
+        setParameter((Parameter) in.readObject());
+        setLimit((Limit) in.readObject());
+        setOccurrenceList((List<Occurrence>) in.readObject());
+        setUser((User) in.readObject());
     }
 
     public String takeData() {
         return this.ip.get() + this.mask.get() + this.gateway.get();
     }
+
 }

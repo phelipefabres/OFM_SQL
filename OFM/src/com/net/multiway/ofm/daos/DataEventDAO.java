@@ -5,17 +5,17 @@
  */
 package com.net.multiway.ofm.daos;
 
-import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
 import java.io.Serializable;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
 import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataEvent;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 /**
  *

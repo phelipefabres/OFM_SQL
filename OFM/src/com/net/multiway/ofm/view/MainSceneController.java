@@ -6,6 +6,7 @@
 package com.net.multiway.ofm.view;
 
 import com.net.multiway.ofm.MainApp;
+import com.net.multiway.ofm.entities.Limit;
 import com.net.multiway.ofm.exception.AlertDialog;
 import com.net.multiway.ofm.model.IController;
 import com.net.multiway.ofm.model.Mode;
@@ -101,7 +102,7 @@ public class MainSceneController implements Initializable, IController {
 
     @FXML
     private void onMenuConfigureLimits(ActionEvent event) {
-
+        Limit limit = new Limit();
         try {
             // Carrega o arquivo fxml e cria um novo stage para a janela popup.
             FXMLLoader loader = new FXMLLoader();
@@ -121,7 +122,7 @@ public class MainSceneController implements Initializable, IController {
 //            // Define o device no controller.
             RangeDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
-            controller.setRange();
+            //controller.setRange(limit);
 
             // Mostra a janela e espera até o usuário fechar.
             dialogStage.showAndWait();

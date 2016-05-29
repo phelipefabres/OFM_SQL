@@ -5,21 +5,22 @@
  */
 package com.net.multiway.ofm.daos;
 
-import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
-import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import com.net.multiway.ofm.entities.Parameter;
+import com.net.multiway.ofm.entities.Data;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
+import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
+import com.net.multiway.ofm.entities.Parameter;
 import com.net.multiway.ofm.entities.Limit;
 import com.net.multiway.ofm.entities.Device;
 import com.net.multiway.ofm.entities.User;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 /**
  *
@@ -37,6 +38,9 @@ public class UserDAO implements Serializable {
     }
 
     public void create(User user) {
+        if (user.getDataList() == null) {
+            user.setDataList(new ArrayList<Data>());
+        }
         if (user.getParameterList() == null) {
             user.setParameterList(new ArrayList<Parameter>());
         }
@@ -50,6 +54,12 @@ public class UserDAO implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Data> attachedDataList = new ArrayList<Data>();
+            for (Data dataListDataToAttach : user.getDataList()) {
+                dataListDataToAttach = em.getReference(dataListDataToAttach.getClass(), dataListDataToAttach.getDataId());
+                attachedDataList.add(dataListDataToAttach);
+            }
+            user.setDataList(attachedDataList);
             List<Parameter> attachedParameterList = new ArrayList<Parameter>();
             for (Parameter parameterListParameterToAttach : user.getParameterList()) {
                 parameterListParameterToAttach = em.getReference(parameterListParameterToAttach.getClass(), parameterListParameterToAttach.getParameterId());
@@ -69,6 +79,15 @@ public class UserDAO implements Serializable {
             }
             user.setDeviceList(attachedDeviceList);
             em.persist(user);
+            for (Data dataListData : user.getDataList()) {
+                User oldUserOfDataListData = dataListData.getUser();
+                dataListData.setUser(user);
+                dataListData = em.merge(dataListData);
+                if (oldUserOfDataListData != null) {
+                    oldUserOfDataListData.getDataList().remove(dataListData);
+                    oldUserOfDataListData = em.merge(oldUserOfDataListData);
+                }
+            }
             for (Parameter parameterListParameter : user.getParameterList()) {
                 User oldUserOfParameterListParameter = parameterListParameter.getUser();
                 parameterListParameter.setUser(user);
@@ -110,6 +129,8 @@ public class UserDAO implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             User persistentUser = em.find(User.class, user.getUserId());
+            List<Data> dataListOld = persistentUser.getDataList();
+            List<Data> dataListNew = user.getDataList();
             List<Parameter> parameterListOld = persistentUser.getParameterList();
             List<Parameter> parameterListNew = user.getParameterList();
             List<Limit> limitListOld = persistentUser.getLimitList();
@@ -117,6 +138,14 @@ public class UserDAO implements Serializable {
             List<Device> deviceListOld = persistentUser.getDeviceList();
             List<Device> deviceListNew = user.getDeviceList();
             List<String> illegalOrphanMessages = null;
+            for (Data dataListOldData : dataListOld) {
+                if (!dataListNew.contains(dataListOldData)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Data " + dataListOldData + " since its user field is not nullable.");
+                }
+            }
             for (Parameter parameterListOldParameter : parameterListOld) {
                 if (!parameterListNew.contains(parameterListOldParameter)) {
                     if (illegalOrphanMessages == null) {
@@ -144,6 +173,13 @@ public class UserDAO implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            List<Data> attachedDataListNew = new ArrayList<Data>();
+            for (Data dataListNewDataToAttach : dataListNew) {
+                dataListNewDataToAttach = em.getReference(dataListNewDataToAttach.getClass(), dataListNewDataToAttach.getDataId());
+                attachedDataListNew.add(dataListNewDataToAttach);
+            }
+            dataListNew = attachedDataListNew;
+            user.setDataList(dataListNew);
             List<Parameter> attachedParameterListNew = new ArrayList<Parameter>();
             for (Parameter parameterListNewParameterToAttach : parameterListNew) {
                 parameterListNewParameterToAttach = em.getReference(parameterListNewParameterToAttach.getClass(), parameterListNewParameterToAttach.getParameterId());
@@ -166,6 +202,17 @@ public class UserDAO implements Serializable {
             deviceListNew = attachedDeviceListNew;
             user.setDeviceList(deviceListNew);
             user = em.merge(user);
+            for (Data dataListNewData : dataListNew) {
+                if (!dataListOld.contains(dataListNewData)) {
+                    User oldUserOfDataListNewData = dataListNewData.getUser();
+                    dataListNewData.setUser(user);
+                    dataListNewData = em.merge(dataListNewData);
+                    if (oldUserOfDataListNewData != null && !oldUserOfDataListNewData.equals(user)) {
+                        oldUserOfDataListNewData.getDataList().remove(dataListNewData);
+                        oldUserOfDataListNewData = em.merge(oldUserOfDataListNewData);
+                    }
+                }
+            }
             for (Parameter parameterListNewParameter : parameterListNew) {
                 if (!parameterListOld.contains(parameterListNewParameter)) {
                     User oldUserOfParameterListNewParameter = parameterListNewParameter.getUser();
@@ -229,6 +276,13 @@ public class UserDAO implements Serializable {
                 throw new NonexistentEntityException("The user with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
+            List<Data> dataListOrphanCheck = user.getDataList();
+            for (Data dataListOrphanCheckData : dataListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This User (" + user + ") cannot be destroyed since the Data " + dataListOrphanCheckData + " in its dataList field has a non-nullable user field.");
+            }
             List<Parameter> parameterListOrphanCheck = user.getParameterList();
             for (Parameter parameterListOrphanCheckParameter : parameterListOrphanCheck) {
                 if (illegalOrphanMessages == null) {

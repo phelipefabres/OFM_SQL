@@ -248,7 +248,7 @@
                   <Label text="até" />
                </children>
             </GridPane>
-            <Button mnemonicParsing="false" onAction="#onHandleClose" text="Fechar" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+            <Button mnemonicParsing="false" onAction="#onHandleOk" text="OK" GridPane.columnIndex="3" GridPane.rowIndex="6" />
          </children>
       </GridPane>
    </children>
