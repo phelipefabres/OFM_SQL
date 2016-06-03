@@ -83,6 +83,16 @@ public class AlertDialog {
 
     }
 
+    public static void LoginInvalid() {
+        // Nada selecionado.
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Erro no Login.");
+        alert.setHeaderText("Usuário e/ou senha incorreto.");
+
+        alert.showAndWait();
+
+    }
+
     public static void IncorrectField(String text) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Campo Incorreto");
@@ -140,6 +150,14 @@ public class AlertDialog {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Aviso!.");
         alert.setHeaderText("Defina uma referencia antes de usar o modo MONITOR!");
+
+        alert.showAndWait();
+    }
+
+    public static void NothingToReferenceUser() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Não existe uma referência.");
+        alert.setHeaderText("Você precisa ter uma referência antes entrar no modo Monitor. Contate o Administrador do Sistema.");
 
         alert.showAndWait();
     }

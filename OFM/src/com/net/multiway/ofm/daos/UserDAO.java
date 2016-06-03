@@ -361,5 +361,22 @@ public class UserDAO implements Serializable {
             em.close();
         }
     }
-    
+
+    /**
+     * Method get users ordered by number
+     *
+     * @param username
+     * @return all user in database with this username
+     */
+    public List<User> findByUsername(String username) {
+        EntityManager em = getEntityManager();
+        try {
+            Query query = em.createNamedQuery("User.findByUsername");
+            query.setParameter("username", username);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
 }

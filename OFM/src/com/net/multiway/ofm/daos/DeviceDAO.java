@@ -266,38 +266,38 @@ public class DeviceDAO implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The device with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            Data dataOrphanCheck = device.getData();
-            if (dataOrphanCheck != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Data " + dataOrphanCheck + " in its data field has a non-nullable device field.");
-            }
-            Parameter parameterOrphanCheck = device.getParameter();
-            if (parameterOrphanCheck != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Parameter " + parameterOrphanCheck + " in its parameter field has a non-nullable device field.");
-            }
-            Limit limitOrphanCheck = device.getLimit();
-            if (limitOrphanCheck != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Limit " + limitOrphanCheck + " in its limit field has a non-nullable device field.");
-            }
-            List<Occurrence> occurrenceListOrphanCheck = device.getOccurrenceList();
-            for (Occurrence occurrenceListOrphanCheckOccurrence : occurrenceListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Occurrence " + occurrenceListOrphanCheckOccurrence + " in its occurrenceList field has a non-nullable device field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
+//            List<String> illegalOrphanMessages = null;
+//            Data dataOrphanCheck = device.getData();
+//            if (dataOrphanCheck != null) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Data " + dataOrphanCheck + " in its data field has a non-nullable device field.");
+//            }
+//            Parameter parameterOrphanCheck = device.getParameter();
+//            if (parameterOrphanCheck != null) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Parameter " + parameterOrphanCheck + " in its parameter field has a non-nullable device field.");
+//            }
+//            Limit limitOrphanCheck = device.getLimit();
+//            if (limitOrphanCheck != null) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Limit " + limitOrphanCheck + " in its limit field has a non-nullable device field.");
+//            }
+//            List<Occurrence> occurrenceListOrphanCheck = device.getOccurrenceList();
+//            for (Occurrence occurrenceListOrphanCheckOccurrence : occurrenceListOrphanCheck) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Device (" + device + ") cannot be destroyed since the Occurrence " + occurrenceListOrphanCheckOccurrence + " in its occurrenceList field has a non-nullable device field.");
+//            }
+//            if (illegalOrphanMessages != null) {
+//                throw new IllegalOrphanException(illegalOrphanMessages);
+//            }
             User user = device.getUser();
             if (user != null) {
                 user.getDeviceList().remove(device);

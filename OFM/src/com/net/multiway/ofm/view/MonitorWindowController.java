@@ -6,17 +6,22 @@
 package com.net.multiway.ofm.view;
 
 import com.net.multiway.ofm.MainApp;
+import com.net.multiway.ofm.daos.DataEventDAO;
 import com.net.multiway.ofm.daos.DeviceDAO;
 import com.net.multiway.ofm.daos.OccurrenceDAO;
+import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataEvent;
 import com.net.multiway.ofm.entities.Device;
+import com.net.multiway.ofm.entities.Limit;
 import com.net.multiway.ofm.entities.Occurrence;
 import com.net.multiway.ofm.exception.AlertDialog;
 import com.net.multiway.ofm.model.ControllerExec;
 import com.net.multiway.ofm.model.DeviceComunicator;
 import com.net.multiway.ofm.model.Mode;
+import com.net.multiway.ofm.model.View;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -136,6 +141,7 @@ public class MonitorWindowController extends ControllerExec {
         occurrence = new Occurrence();
 
         prepareForm(Mode.VIEW);
+       // prepareMenu(Mode.VIEW);
     }
 
     @FXML
@@ -189,7 +195,7 @@ public class MonitorWindowController extends ControllerExec {
                                 // Sleep at least n milliseconds.
                                 Thread.sleep(1000 * 60 * parameters.getCycleTime());
                             } catch (InterruptedException ex) {
-                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, "Sleep interrupted.");
+                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, "Thread Interrompida.");
                             }
                         }
 
@@ -231,7 +237,7 @@ public class MonitorWindowController extends ControllerExec {
                             msg = "Gráfico plotado. Iteração " + count;
                             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                             executionLabel.setText(msg);
-//                            limits.setEventsNumber(receiveParameters.getData().getEvents().size());
+
                             saveOccurrence(receiveParameters.getData().getDataEventList().size());
                             OccurrenceDAO dao = new OccurrenceDAO(emf);
                             displayOccurrence(dao.findOccurrenceEntities());
@@ -258,7 +264,7 @@ public class MonitorWindowController extends ControllerExec {
 
     @FXML
     private void onHandleChangeToConfiguration() {
-        MainApp.getInstance().showConfiguration();
+        MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
     }
 
     @Override
@@ -290,6 +296,26 @@ public class MonitorWindowController extends ControllerExec {
 
     @Override
     public void prepareMenu(Mode mode) {
+        switch (mode) {
+            case VIEW:
+                MainApp.getInstance().disable(Menu.Print, true);
+                MainApp.getInstance().disable(Menu.ExportEL, true);
+                MainApp.getInstance().disable(Menu.ExportLR, true);
+                MainApp.getInstance().disable(Menu.ExportOL, true);
+                MainApp.getInstance().disable(Menu.Print, true);
+                break;
+            case EDIT:
+                MainApp.getInstance().disable(Menu.Print, false);
+                MainApp.getInstance().disable(Menu.ExportEL, false);
+                MainApp.getInstance().disable(Menu.ExportLR, false);
+                MainApp.getInstance().disable(Menu.ExportOL, false);
+                MainApp.getInstance().disable(Menu.Print, false);
+                break;
+
+            default:
+                throw new AssertionError(mode.name());
+
+        }
     }
 
     @FXML
@@ -302,6 +328,7 @@ public class MonitorWindowController extends ControllerExec {
 
         this.parameters = reference.getParameter();
         this.device = reference;
+        this.limits = reference.getLimit();
 
         this.measureRangeField.setValue(parameters.getMeasuringRangeOfTest());
         this.pulseWidthField.setValue(parameters.getTestPulseWidth());
@@ -317,6 +344,8 @@ public class MonitorWindowController extends ControllerExec {
         ipLabel.setText(device.getIp());
         maskLabel.setText(device.getMask());
         gatewayLabel.setText(device.getGateway());
+        String msg = "Referência lida...";
+        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
     }
 
@@ -341,16 +370,96 @@ public class MonitorWindowController extends ControllerExec {
         Occurrence occurr = new Occurrence();
         LocalDateTime timePoint = LocalDateTime.now();
         DeviceDAO deviceDao = new DeviceDAO(emf);
-        Device deviceReference = deviceDao.findDevice(1);
+
+        List<Device> deviceList = deviceDao.findDeviceEntities();
+        int id = 0;
+        for (Device p : deviceList) {
+            if ((p.getName().compareToIgnoreCase(device.getName())) == 0) {
+                id = p.getDeviceId();
+            }
+        }
+        Device deviceReference = deviceDao.findDevice(id);
+        Data dataReference = deviceReference.getData();
+        Limit limitReference = deviceReference.getLimit();
+        DataEventDAO eventDAO = new DataEventDAO(emf);
+        List<DataEvent> eventsReference = eventDAO.findDataEventEntities();
+
+        Data dataNow = receiveParameters.getData();
+        Limit limitNow = limits;
+        ArrayList<DataEvent> eventsNow = (ArrayList<DataEvent>) receiveParameters.getData().getDataEventList();
+        Device deviceNow = device;
+
+        float a3 = eventsReference.get(eventsNow.size() - 1).getDistance();
+        float tmp = a3 * (limitReference.getDistanceGreen() / 100.0f);
+
+        float a3_i = a3 - tmp;
+        float a3_s = a3 + tmp;
+        a3 = eventsNow.get(eventsNow.size() - 1).getDistance();
+
+        occurr.setType("OK");
+        occurr.setDescription("Nenhum erro foi encontrado!");
+        occurr.setCreateTime(new Date());
+
         if (eventSize != deviceReference.getData().getDataEventList().size()) {
-            occurr.setType("Vermelho");
+            occurr.setType("ERRO");
             occurr.setDescription("Erro! Número de enventos diferente da referência!");
             occurr.setCreateTime(new Date());
 
-        } else {
-            occurr.setType("Verde");
-            occurr.setDescription("Nenhum erro foi encontrado!");
+        } else if (a3 < a3_i) {
+            occurr.setType("ERRO");
+            occurr.setDescription("Erro! Rompimento na distância " + a3 + " metros de cabo optico.");
             occurr.setCreateTime(new Date());
+
+        } else {
+
+            for (int i = 0; i < eventsReference.size(); i++) {
+                float temp = eventsReference.get(i).getInsertionLoss();
+                temp = Math.abs(temp) * (limits.getInsertionYellow() / 100.0f);
+                float nb = Math.abs(eventsNow.get(i).getInsertionLoss()) - Math.abs(eventsReference.get(i).getInsertionLoss());
+//                System.out.println(temp);
+//                System.out.println(nb);
+                if (nb > 0 && nb > temp) {
+                    occurr.setType("ATENÇÃO");
+                    occurr.setDescription("Info! No evento " + (i + 1) + " Insertion loss aumentou a perda em " + (nb - temp) + " db.");
+                    occurr.setCreateTime(new Date());
+                    break;
+                }
+                temp = eventsReference.get(i).getEchoLoss();
+                System.out.println(temp);
+                temp = Math.abs(temp) * (limits.getReflectionYellow() / 100.0f);
+                float nc = Math.abs(eventsNow.get(i).getEchoLoss()) - Math.abs(eventsReference.get(i).getEchoLoss());
+                System.out.println(temp);
+                System.out.println(nc);
+                if (nc > 0 && nc > temp) {
+                    occurr.setType("ATENÇÃO");
+                    occurr.setDescription("Info! No evento " + (i + 1) + " Reflection loss aumentou a perda em " + (nc - temp) + " db.");
+                    occurr.setCreateTime(new Date());
+                    break;
+                }
+                temp = eventsReference.get(i).getAcumulativeLoss();
+                temp = Math.abs(temp) * (limits.getAcumulationYellow() / 100.0f);
+//                System.out.println(temp);
+                float nd = Math.abs(eventsNow.get(i).getAcumulativeLoss()) - Math.abs(eventsReference.get(i).getAcumulativeLoss());
+//                System.out.println(nd);
+
+                if (nd > 0 && nd > temp) {
+                    occurr.setType("ATENÇÃO");
+                    occurr.setDescription("Info! No evento " + (i + 1) + " Acumulative loss aumentou a perda em " + (nd - temp) + " db.");
+                    occurr.setCreateTime(new Date());
+                    break;
+                }
+                temp = eventsReference.get(i).getAverageAttenuationCoefficient();
+                temp = Math.abs(temp) * (limits.getAttenuationYellow() / 100.0f);
+                float ne = Math.abs(eventsNow.get(i).getAverageAttenuationCoefficient()) - Math.abs(eventsReference.get(i).getAverageAttenuationCoefficient());
+//                System.out.println(temp);
+//                System.out.println(ne);
+                if (ne > temp) {
+                    occurr.setType("ATENÇÃO");
+                    occurr.setDescription("Info! No evento " + (i + 1) + " Attenuation Coefficient aumentou o coeficiente de atenuação em " + (ne - temp) + " db.");
+                    occurr.setCreateTime(new Date());
+                    break;
+                }
+            }
         }
 
         occurr.setDevice(device);
@@ -359,5 +468,7 @@ public class MonitorWindowController extends ControllerExec {
         occurr.setDevice(device);
         dao.create(occurr);
         device.getOccurrenceList().add(occurr);
+        String msg = "Ocorrência registrada...";
+        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
     }
 }

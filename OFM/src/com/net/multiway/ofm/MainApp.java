@@ -9,6 +9,7 @@ import com.net.multiway.ofm.model.IController;
 import com.net.multiway.ofm.model.Mode;
 import com.net.multiway.ofm.model.View;
 import com.net.multiway.ofm.view.MainSceneController;
+import com.net.multiway.ofm.view.Menu;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -86,17 +87,9 @@ public class MainApp extends Application {
             String msg = "MainScene inicializada...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
-            // Loads Configuration view
-//            FXMLLoader loader = new FXMLLoader();
-//            loader.setLocation(MainApp.class.getResource(View.ConfigurationWindow.getResource()));
-//            Node node = loader.load();
-//            IController controller = (IController) loader.getController();
-//            controller.prepareForm(Mode.VIEW);
-//            controller.prepareMenu(Mode.VIEW);
-//            rootController.setCenterController(controller);
-//            rootLayout.setCenter((AnchorPane) node);
+      
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(View.ConfigurationWindow.getResource()));
+            loader.setLocation(MainApp.class.getResource(View.LoginWindow.getResource()));
             configNode = loader.load();
             configController = (IController) loader.getController();
             configController.prepareForm(Mode.VIEW);
@@ -104,7 +97,7 @@ public class MainApp extends Application {
             rootController.setCenterController(configController);
             rootLayout.setCenter((AnchorPane) configNode);
 
-            msg = "ConfigurationWindow inicializada...";
+            msg = "LoginWindow inicializada...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
         } catch (IOException ex) {
             Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
@@ -156,15 +149,25 @@ public class MainApp extends Application {
         return null;
     }
 
-    public void showConfiguration() {
-
-        rootController.setCenterController(configController);
-        rootLayout.setCenter((AnchorPane) configNode);
-        String msg = "showConfiguration inicializado...";
-        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-    }
+//    public void showConfiguration() {
+//
+//        rootController.setCenterController(configController);
+//        rootLayout.setCenter((AnchorPane) configNode);
+//        String msg = "showConfiguration inicializado...";
+//        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+//    }
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    /**
+     * @param menu Menu to be disabled
+     * @param disable <code>true</code> to disable the 'New' Item from
+     * Menu<br />
+     * <code>false</code> to enable the 'New' Item from Menu<br />
+     */
+    public void disable(Menu menu, boolean disable) {
+        rootController.disable(menu, disable);
     }
 }

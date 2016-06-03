@@ -90,18 +90,17 @@ public abstract class ControllerExec implements Initializable, IController {
         for (DataGraphic data : receiveParameters.getData().getDataGraphicList()) {
             int c = data.getPoint();
             float dx = 2 * n * fz;
-            dx = (i / dx) * 1000000000;
+            dx =  (i / dx)*1000000000;
 
             float mdx = 2 * n1 * fz;
             mdx = (i / mdx);
 
             if (i == m) {
-                receiveParameters.getData().getDataEventList().get(k).setDistance(mdx * c * 10000);
-                System.out.println("MDX = " + mdx * c * 10000);
+                receiveParameters.getData().getDataEventList().get(k).setDistance(Math.abs(mdx * c * 10000));
                 k++;    
             }
 
-            XYChart.Data<Float, Float> coordData = new XYChart.Data<>(dx, (float) c / 1000);
+            XYChart.Data<Float, Float> coordData = new XYChart.Data<>(Math.abs(dx), Math.abs((float) c / 1000));
 
             dataset.add(coordData);
 
@@ -112,7 +111,7 @@ public abstract class ControllerExec implements Initializable, IController {
             }
         }
 
-        grafico.getData().add(new XYChart.Series("My portfolio", FXCollections.observableArrayList(dataset)));
+        grafico.getData().add(new XYChart.Series("Gráfico", FXCollections.observableArrayList(dataset)));
 
     }
 

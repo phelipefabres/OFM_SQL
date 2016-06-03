@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -164,6 +166,7 @@ public class ConfigurationWindowController extends ControllerExec {
         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
         cycleTimeField.setText(parameters.getCycleTime().toString());
+        prepareMenu(Mode.EDIT);
 
     }
 
@@ -195,8 +198,6 @@ public class ConfigurationWindowController extends ControllerExec {
                         DeviceDAO daoRef = new DeviceDAO(emf);
                         daoRef.destroy(device.getDeviceId());
 
-//                        DataDeviceDAO daoDev = new DataDeviceDAO();
-//                        daoDev.delete(device);
                     } catch (Exception ex) {
                         Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
                         AlertDialog.exception(ex);
@@ -352,10 +353,6 @@ public class ConfigurationWindowController extends ControllerExec {
         if (device != null) {
             host = new DeviceComunicator(device.getIp().trim(), 5000);
 
-//            if(host.connect(device)) {
-//                
-//            }
-//            else 
             if (buttonSave.isDisable()) {
                 executionLabel.setVisible(true);
                 String msg = "Recebendo Dados do OTDR...";
@@ -437,78 +434,79 @@ public class ConfigurationWindowController extends ControllerExec {
     @FXML
     private void onHandleSetReference() {
         if (receiveParameters != null && receiveValues != null && device != null && limits != null) {
-            DeviceDAO dao = new DeviceDAO(emf);
+
+            DeviceDAO deviceDao = new DeviceDAO(emf);
+            ParameterDAO parameterDao = new ParameterDAO(emf);
+            LimitDAO limitDao = new LimitDAO(emf);
+            DataDAO dataDao = new DataDAO(emf);
+            DataGraphicDAO dataGraphicDao = new DataGraphicDAO(emf);
+            DataEventDAO dataEventDao = new DataEventDAO(emf);
+            UserDAO userDao = new UserDAO(emf);
+
             try {
-
-                //device = dao.findDevice(1);
-                Device d = dao.findDevice(1);
-                if (d == null) {
-                    UserDAO userDao = new UserDAO(emf);
-                    User user = userDao.findUser(1);
-                    if (user == null) {
-                        user = new User();
-                        user.setUsername("admin");
-                        user.setEmail("teste@vai.dar.certo");
-                        user.setPassword("13");
-                        user.setCreateTime(new Date());
-                        userDao.create(user);
+                List<Device> deviceList = deviceDao.findDeviceEntities();
+                Device d;
+                for (Device p : deviceList) {
+                    if ((p.getName().compareToIgnoreCase(device.getName())) == 0) {
+                        device.setDeviceId(p.getDeviceId());
                     }
+                }
+                if (device.getDeviceId() != null) {
+                    d = deviceList.get(0);
+                    deviceDao.destroy(d.getDeviceId());
+                }
 
-                    DeviceDAO deviceDao = new DeviceDAO(emf);
-                    ParameterDAO parameterDao = new ParameterDAO(emf);
-                    LimitDAO limitDao = new LimitDAO(emf);
-                    DataDAO dataDao = new DataDAO(emf);
-                    DataGraphicDAO dataGraphicDao = new DataGraphicDAO(emf);
-                    DataEventDAO dataEventDao = new DataEventDAO(emf);
-                    System.out.println("name = " + user.getUsername());
+                User user = userDao.findUser(1);
+                if (user == null) {
+                    user = new User();
+                    user.setUsername("admin");
+                    user.setEmail("teste@vai.dar.certo");
+                    user.setPassword("13");
+                    user.setCreateTime(new Date());
+                    userDao.create(user);
+                }
 
-                    d = new Device();
-                    d.setGateway(device.getGateway());
-                    d.setIp(device.getIp());
-                    d.setMask(device.getMask());
-                    d.setName("Device 1");
-                    d.setUser(user);
-                    d.setCreateTime(new Date());
-                    d.setStatus("Active");
-                    deviceDao.create(d);
-                    Parameter parameter = new Parameter();
-                    //parameter.copy(parameters);
+                d = new Device();
+                d.setGateway(device.getGateway());
+                d.setIp(device.getIp());
+                d.setMask(device.getMask());
+                d.setName("Device 1");
+                d.setUser(user);
+                d.setCreateTime(new Date());
+                d.setStatus("Active");
+                deviceDao.create(d);
 
-//                    System.out.println(device.getParameter().toString());
-//                    System.out.println(device.getLimit().toString());
-//                    System.out.println(device.getData().toString());
-                    parameters.setDevice(d); // enlace bidirecional
-                    parameters.setUser(user);
-                    parameters.setCreateTime(new Date());
-                    parameter.copy(parameters);
-                    parameterDao.create(parameter);
-                    d.setParameter(parameter); // enlace bidirecional
+                Parameter parameter = new Parameter();
+                parameters.setDevice(d); // enlace bidirecional
+                parameters.setUser(user);
+                parameters.setCreateTime(new Date());
+                parameter.copy(parameters);
+                parameterDao.create(parameter);
+                d.setParameter(parameter); // enlace bidirecional
 
-                    Limit limit = new Limit();
-                    System.out.println(limits.getAcumulationGreen());
-                    limit.setDevice(d); // enlace bidirecional
-                    limit.setUser(user);
-                    limit.setCreateTime(new Date());
-                    limit.copy(limits);
-                    limitDao.create(limit);
-                    d.setLimit(limit); //enlace bidirecional
+                Limit limit = new Limit();
+                limit.setDevice(d); // enlace bidirecional
+                limit.setUser(user);
+                limit.setCreateTime(new Date());
+                limit.copy(limits);
+                limitDao.create(limit);
+                d.setLimit(limit); //enlace bidirecional
 
-                    Data data = new Data();
+                Data data = new Data();
+                data.setDevice(d); //enlace bidirecional
+                data.setUser(user);
+                data.setCreateTime(new Date());
+                data.copy(receiveParameters.getData());
+                dataDao.create(data);
+                d.setData(data); //enlace bidirecional
 
-                    data.setDevice(d); //enlace bidirecional
-                    data.setUser(user);
-                    data.copy(receiveParameters.getData());
-                    dataDao.create(data);
-                    d.setData(data); //enlace bidirecional
-
-                    ArrayList<DataEvent> even = (ArrayList<DataEvent>) receiveParameters.getData().getDataEventList();
-                    //  DataEventDAO edao = new DataEventDAO(emf);
-                    for (int i = 0; i < even.size(); i++) {
-                        DataEvent dataEvent = even.get(i);
-                        dataEvent.setData(data);
-                        dataEventDao.create(dataEvent);
-                        data.getDataEventList().add(dataEvent);
-                    }
+                ArrayList<DataEvent> even = (ArrayList<DataEvent>) receiveParameters.getData().getDataEventList();
+                for (int i = 0; i < even.size(); i++) {
+                    DataEvent dataEvent = even.get(i);
+                    dataEvent.setData(data);
+                    dataEventDao.create(dataEvent);
+                    data.getDataEventList().add(dataEvent);
+                }
 //                    ArrayList<DataGraphic> list = (ArrayList<DataGraphic>) receiveParameters.getData().getDataGraphicList();
 //                    for (int i = 0; i < list.size(); i++) {
 //                        DataGraphic dataGraphic = list.get(i); //enlace bidirecional
@@ -517,8 +515,10 @@ public class ConfigurationWindowController extends ControllerExec {
 //                        // data.getDataGraphicList().add(dataGraphic);
 //
 //                    }
-                    device = d;
-                }
+                device = d;
+                parameters = parameter;
+                limits = limit;
+                receiveParameters.setData(data);
 
             } catch (Exception ex) {
                 Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
@@ -536,13 +536,21 @@ public class ConfigurationWindowController extends ControllerExec {
 
     @FXML
     private void onHandleChangeToMonitor() throws IOException {
+        DeviceDAO deviceDao = new DeviceDAO(emf);
 
-        if (device != null) {
+        List<Device> deviceList = deviceDao.findDeviceEntities();
+//        for (Device p : deviceList) {
+//            if ((p.getName().compareToIgnoreCase(device.getName())) == 0) {
+        Device deviceReference = deviceList.get(0);
+//            }
+//        }
+
+        if (deviceReference != null) {
 
             MonitorWindowController controller
                     = (MonitorWindowController) MainApp.getInstance().showView(View.MonitorWindow, Mode.VIEW);
 
-            controller.setReference(device);
+            controller.setReference(deviceReference);
 
         } else {
             AlertDialog.referenceMissing();
@@ -557,7 +565,7 @@ public class ConfigurationWindowController extends ControllerExec {
     @Override
     public void prepareForm(Mode mode) {
         switch (mode) {
-            case VIEW:
+            case EDIT:
                 measureRangeField.setDisable(true);
                 pulseWidthField.setDisable(true);
                 measureTimeField.setDisable(true);
@@ -570,7 +578,7 @@ public class ConfigurationWindowController extends ControllerExec {
                 buttonSave.setDisable(true);
                 cycleTimeField.setDisable(true);
                 break;
-            case EDIT:
+            case VIEW:
                 measureRangeField.setDisable(false);
                 pulseWidthField.setDisable(false);
                 measureTimeField.setDisable(false);
@@ -589,6 +597,27 @@ public class ConfigurationWindowController extends ControllerExec {
 
     @Override
     public void prepareMenu(Mode mode) {
+        switch (mode) {
+            case VIEW:
+                MainApp.getInstance().disable(Menu.Print, true);
+                MainApp.getInstance().disable(Menu.ExportEL, true);
+                MainApp.getInstance().disable(Menu.ExportLR, true);
+                MainApp.getInstance().disable(Menu.ExportOL, true);
+                MainApp.getInstance().disable(Menu.Print, true);
+                break;
+            case EDIT:
+                System.out.println("Aqui!");
+                MainApp.getInstance().disable(Menu.Print, false);
+                MainApp.getInstance().disable(Menu.ExportEL, false);
+                MainApp.getInstance().disable(Menu.ExportLR, false);
+                MainApp.getInstance().disable(Menu.ExportOL, false);
+                MainApp.getInstance().disable(Menu.Print, false);
+                break;
+
+            default:
+                throw new AssertionError(mode.name());
+
+        }
 
     }
 

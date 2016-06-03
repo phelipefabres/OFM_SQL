@@ -5,12 +5,18 @@
  */
 package com.net.multiway.ofm.report;
 
+import com.net.multiway.ofm.daos.DataEventDAO;
+import com.net.multiway.ofm.daos.OccurrenceDAO;
+import com.net.multiway.ofm.entities.Occurrence;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import javax.persistence.Persistence;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -18,6 +24,7 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.view.JasperViewer;
 
@@ -27,49 +34,36 @@ import net.sf.jasperreports.view.JasperViewer;
  */
 public class Reports {
 
-    public void gerarRelatorio(String nomeRelatorio,
-            HashMap paramRel) throws SQLException, JRException {
-//        FacesContext context = FacesContext.getCurrentInstance();
-//        HttpServletResponse response
-//                = (HttpServletResponse) context.getExternalContext()
-//                .getResponse();
-//        ServletContext sc
-//                = (ServletContext) context.getExternalContext().getContext();
-
-//        String relPath = sc.getRealPath("/");
-//        String imagemLogo
-//                = relPath + "resources/imagens/logo_mmo.jpg";
-//        paramRel.put("imagemLogo", imagemLogo);
-        paramRel.put("NomeSistema", "OFM");
-        paramRel.put("REPORT_LOCALE", new Locale("pt", "BR"));
+    public void occurrenceReport() throws SQLException, JRException {
+        // HashMap paramRel = new HashMap();
 
         try {
-            JasperPrint print = null;
-            String url = "jdbc:h2:C:Projetocopiaofmofm_layoutdbofm";
-            String user = "sa";
-            String pass = "";
-            Connection connection
-                    = DriverManager.getConnection(url, user, pass);
-            URL arquivo = getClass().getResource("ExportReport.jrxml");	    
-	 //   JasperReport jasperReport = (JasperReport) JRLoader.loadObject( arquivo );
-            JasperReport report = JasperCompileManager.compileReport("file:ExportReport.jrxml");
-	    JasperPrint jasperPrint;
-            jasperPrint = JasperFillManager.fillReport(report, paramRel);
+            OccurrenceDAO dao = new OccurrenceDAO(Persistence.createEntityManagerFactory("ofmPU"));
+            JasperReport report = JasperCompileManager.compileReport("resources/occurrenceReport.jrxml");
 
-            JasperViewer jasperViewer = new JasperViewer( jasperPrint, false );
-	    jasperViewer.setVisible( true );
-//            response.setContentType("application/pdf");
-            //            response.addHeader("Content-disposition",	"attachment;	
-            //												filename =\""	+	nomeRelatorio + ".pdf\""
-            //);
-//            JasperExportManager.exportReportToPdfStream(print,
-//                    response.getOutputStream());
-//            ServletOutputStream responseStream
-//                    = response.getOutputStream();
-//            responseStream.flush();
-//            responseStream.close();
-//            FacesContext.getCurrentInstance().renderResponse();
-//            FacesContext.getCurrentInstance().responseComplete();
+            JRDataSource jrds = new JRBeanCollectionDataSource(dao.findOccurrenceEntities());
+
+            JasperPrint print = JasperFillManager.fillReport("resources/occurrenceReport.jasper", null, jrds);
+            JasperExportManager.exportReportToPdfFile(print, "resources/occurrenceReport.pdf");
+            JasperViewer.viewReport(print, false);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void eventsReport() throws SQLException, JRException {
+
+        try {
+            DataEventDAO dao = new DataEventDAO(Persistence.createEntityManagerFactory("ofmPU"));
+            JasperReport report = JasperCompileManager.compileReport("resources/eventsReport.jrxml");
+
+            JRDataSource jrds = new JRBeanCollectionDataSource(dao.findDataEventEntities());
+
+            JasperPrint print = JasperFillManager.fillReport("resources/eventsReport.jasper", null, jrds);
+            JasperExportManager.exportReportToPdfFile(print, "resources/eventsReport.pdf");
+            JasperViewer.viewReport(print, false);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

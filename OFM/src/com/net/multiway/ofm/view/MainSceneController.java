@@ -24,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -37,6 +38,56 @@ import net.sf.jasperreports.engine.JRException;
 public class MainSceneController implements Initializable, IController {
 
     private IController centerController;
+    @FXML
+    private MenuItem menuPrint;
+    @FXML
+    private MenuItem menuExit;
+    @FXML
+    private MenuItem menuExportLastRead;
+    @FXML
+    private MenuItem menuExportEventsList;
+    @FXML
+    private MenuItem menuHelp;
+    @FXML
+    private MenuItem menuAbout;
+    @FXML
+    private MenuItem menuExportOcurrencesList;
+
+    private MenuItem pickMenuItem(Menu menu) {
+        switch (menu) {
+            case Print:
+                return menuPrint;
+            case Exit:
+                return menuExit;
+            case ExportLR:
+                return menuExportLastRead;
+            case ExportEL:
+                return menuExportEventsList;
+            case ExportOL:
+                return menuExportOcurrencesList;
+            case Help:
+                return menuHelp;
+            case About:
+                return menuAbout;
+
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * @param menu Menu to be disabled
+     * @param disable <code>true</code> to disable the 'New' Item from
+     * Menu<br />
+     * <code>false</code> to enable the 'New' Item from Menu<br />
+     */
+    public void disable(Menu menu, boolean disable) {
+        MenuItem itemToDisable = pickMenuItem(menu);
+
+        if (itemToDisable != null) {
+            itemToDisable.setDisable(disable);
+        }
+    }
 
     /**
      * Initializes the controller class.
@@ -76,20 +127,22 @@ public class MainSceneController implements Initializable, IController {
 
     @FXML
     private void onMenuExportLastRead(ActionEvent event) throws SQLException, JRException {
+
+    }
+
+    @FXML
+    private void onMenuExportEventsList(ActionEvent event) throws SQLException, JRException {
         Reports report = new Reports();
 
-        HashMap	paramRel = new HashMap();
-        String nomeRelatorio = "Relatório 1";
-       report.gerarRelatorio(nomeRelatorio, paramRel);
-
+        report.eventsReport();
     }
 
     @FXML
-    private void onMenuExportEventsList(ActionEvent event) {
-    }
+    private void onMenuExportOcurrencesList(ActionEvent event) throws SQLException, JRException {
+        Reports report = new Reports();
 
-    @FXML
-    private void onMenuExportOcurrencesList(ActionEvent event) {
+        report.occurrenceReport();
+
     }
 
     @FXML
@@ -100,7 +153,6 @@ public class MainSceneController implements Initializable, IController {
     private void onMenuAbout(ActionEvent event) {
     }
 
-    @FXML
     private void onMenuConfigureLimits(ActionEvent event) {
         Limit limit = new Limit();
         try {

@@ -58,270 +58,7 @@ public class User implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
-//    public User() {
-//        this.username = new SimpleStringProperty();
-//        this.email = new SimpleStringProperty();
-//        this.password = new SimpleStringProperty();
-//        this.createTime = new SimpleObjectProperty<>();
-//    }
-//
-//    public User(Integer userId, String username, String email, String password, Date createTime) {
-//        this.userId = new SimpleObjectProperty<>(userId);
-//        this.username = new SimpleStringProperty(username) {
-//        };
-//        this.email = new SimpleStringProperty(email);
-//        this.password = new SimpleStringProperty(password);
-//        this.createTime = new SimpleObjectProperty<>(createTime);
-//    }
-//
-//    public User(String username, String email, String password, Date createTime) {
-//        this.username = new SimpleStringProperty(username);
-//        this.email = new SimpleStringProperty(email);
-//        this.password = new SimpleStringProperty(password);
-//        this.createTime = new SimpleObjectProperty<>(createTime);
-//    }
-//
-//    private ObjectProperty<Integer> userId;
-//
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Basic(optional = false)
-//    @Column(name = "user_id", nullable = false)
-//    public Integer getUserId() {
-//
-//        return userId.get();
-//
-//    }
-//
-//    public void setUserId(Integer userId) {
-//
-//        this.userId.set(userId);
-//
-//    }
-//
-//    public ObjectProperty<Integer> userIdProperty() {
-//
-//        return userId;
-//    }
-//
-//    private StringProperty username;
-//
-//    @Basic(optional = false)
-//    @Column(name = "username", nullable = false, length = 16)
-//    public String getUsername() {
-//
-//        return username.get();
-//
-//    }
-//
-//    public void setUsername(String username) {
-//
-//        this.username.set(username);
-//
-//    }
-//
-//    public StringProperty username() {
-//
-//        return username;
-//    }
-//
-//    private StringProperty email;
-//
-//    @Basic(optional = false)
-//    @Column(name = "email", nullable = false, length = 255)
-//    public String getEmail() {
-//
-//        return email.get();
-//
-//    }
-//
-//    public void setEmail(String email) {
-//
-//        this.email.set(email);
-//
-//    }
-//
-//    public StringProperty emailProperty() {
-//
-//        return email;
-//    }
-//
-//    private StringProperty password;
-//
-//    @Basic(optional = false)
-//    @Column(name = "password", nullable = false, length = 32)
-//    public String getPassword() {
-//
-//        return password.get();
-//
-//    }
-//
-//    public void setPassword(String password) {
-//
-//        this.password.set(password);
-//
-//    }
-//
-//    public StringProperty passwordProperty() {
-//
-//        return password;
-//    }
-//
-//    private ObjectProperty<Date> createTime;
-//
-//    @Basic(optional = false)
-//    @Column(name = "create_time", nullable = false)
-//    @Temporal(TemporalType.TIMESTAMP)
-//    public Date getCreateTime() {
-//
-//        return createTime.get();
-//
-//    }
-//
-//    public void setCreateTime(Date createTime) {
-//
-//        this.createTime.set(createTime);
-//
-//    }
-//
-//    public ObjectProperty<Date> createTimeProperty() {
-//
-//        return createTime;
-//    }
-//
-//    private ObjectProperty<Date> updateTime;
-//
-//    @Column(name = "update_time")
-//    @Temporal(TemporalType.TIMESTAMP)
-//    public Date getUpdateTime() {
-//
-//        return updateTime.get();
-//
-//    }
-//
-//    public void setUpdateTime(Date updateTime) {
-//
-//        this.updateTime.set(updateTime);
-//
-//    }
-//
-//    public ObjectProperty<Date> updateTimeProperty() {
-//
-//        return updateTime;
-//    }
-//
-//    private List<Data> dataList;
-//
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-//    public List<Data> getDataList() {
-//
-//        return dataList;
-//
-//    }
-//
-//    public void setDataList(List<Data> dataList) {
-//
-//        this.dataList = dataList;
-//
-//    }
-//
-//    private List<Parameter> parameterList;
-//
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-//    public List<Parameter> getParameterList() {
-//
-//        return parameterList;
-//
-//    }
-//
-//    public void setParameterList(List<Parameter> parameterList) {
-//
-//        this.parameterList = parameterList;
-//
-//    }
-//
-//    private List<Limit> limitList;
-//
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-//    public List<Limit> getLimitList() {
-//
-//        return limitList;
-//
-//    }
-//
-//    public void setLimitList(List<Limit> limitList) {
-//
-//        this.limitList = limitList;
-//
-//    }
-//
-//    private List<Device> deviceList;
-//
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-//    public List<Device> getDeviceList() {
-//
-//        return deviceList;
-//
-//    }
-//
-//    public void setDeviceList(List<Device> deviceList) {
-//
-//        this.deviceList = deviceList;
-//
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        int hash = 0;
-//        hash += (userId != null ? userId.hashCode() : 0);
-//        return hash;
-//    }
-//
-//    @Override
-//    public boolean equals(Object object) {
-//        // TODO: Warning - this method won't work in the case the id fields are not set
-//        if (!(object instanceof User)) {
-//            return false;
-//        }
-//        User other = (User) object;
-//        if ((this.userId == null && other.userId != null) || (this.userId != null && !this.userId.equals(other.userId))) {
-//            return false;
-//        }
-//        return true;
-//    }
-//
-//    @Override
-//    public String toString() {
-//        return "ofm.model.entities.User[ userId=" + userId + "; username=" + username + " ]";
-//    }
-//
-//    @Override
-//    public void writeExternal(ObjectOutput out) throws IOException {
-//        out.writeObject(getUserId());
-//        out.writeObject(getUsername());
-//        out.writeObject(getEmail());
-//        out.writeObject(getPassword());
-//        out.writeObject(getCreateTime());
-//        out.writeObject(getUpdateTime());
-//        out.writeObject(getDataList());
-//        out.writeObject(getParameterList());
-//        out.writeObject(getLimitList());
-//        out.writeObject(getDeviceList());
-//    }
-//
-//    @Override
-//    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-//        setUserId((Integer) in.readObject());
-//        setUsername((String) in.readObject());
-//        setEmail((String) in.readObject());
-//        setPassword((String) in.readObject());
-//        setCreateTime((Date) in.readObject());
-//        setUpdateTime((Date) in.readObject());
-//        setDataList((List<Data>) in.readObject());
-//        setParameterList((List<Parameter>) in.readObject());
-//        setLimitList((List<Limit>) in.readObject());
-//        setDeviceList((List<Device>) in.readObject());
-//    }
+
     public User() {
         this.username = new SimpleStringProperty();
         this.email = new SimpleStringProperty();
@@ -382,6 +119,34 @@ public class User implements Externalizable {
             userId = new SimpleIntegerProperty(this, "userId", _userId);
         }
         return userId;
+    }
+    
+    private IntegerProperty isAdmin;
+    private Integer _isAdmin;
+    
+    @Basic(optional = false)
+    @Column(name = "is_admin", nullable = false)
+    public Integer getisAdmin() {
+        if (isAdmin == null) {
+            return _isAdmin;
+        } else {
+            return isAdmin.get();
+        }
+    }
+
+    public void setisAdmin(Integer isAdmin) {
+        if (this.userId == null) {
+            this._isAdmin = isAdmin;
+        } else {
+            this.isAdmin.set(isAdmin);
+        }
+    }
+
+    public IntegerProperty isAdmindProperty() {
+        if (isAdmin == null) {
+            isAdmin = new SimpleIntegerProperty(this, "userId", _isAdmin);
+        }
+        return isAdmin;
     }
 
     private StringProperty username;

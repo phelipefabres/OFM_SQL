@@ -11,26 +11,21 @@
         <menus>
           <Menu mnemonicParsing="false" text="Arquivo">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuPrint" text="Imprimir configuracao" />
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuExit" text="Sair" />
+                  <MenuItem fx:id="menuPrint" mnemonicParsing="false" onAction="#onMenuPrint" text="Imprimir configuracao" />
+                  <MenuItem fx:id="menuExit" mnemonicParsing="false" onAction="#onMenuExit" text="Sair" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Relatórios">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuExportLastRead" text="Exportar ultima leitura" />
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuExportEventsList" text="Exportar lista de eventos" />
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuExportOcurrencesList" text="Exportar lista de ocorrencias" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Configuracões">
-               <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuConfigureLimits" text="Configurar Limites" />
+                  <MenuItem fx:id="menuExportLastRead" mnemonicParsing="false" onAction="#onMenuExportLastRead" text="Exportar ultima leitura" />
+                  <MenuItem fx:id="menuExportEventsList" mnemonicParsing="false" onAction="#onMenuExportEventsList" text="Exportar lista de eventos" />
+                  <MenuItem fx:id="menuExportOcurrencesList" mnemonicParsing="false" onAction="#onMenuExportOcurrencesList" text="Exportar lista de ocorrencias" />
                </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Ajuda">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#onMenuHelp" text="Ajuda" />
-                  <MenuItem mnemonicParsing="false" onAction="#onMenuAbout" text="About" />
+              <MenuItem fx:id="menuHelp" mnemonicParsing="false" onAction="#onMenuHelp" text="Ajuda" />
+                  <MenuItem fx:id="menuAbout" mnemonicParsing="false" onAction="#onMenuAbout" text="Sobre" />
             </items>
           </Menu>
         </menus>

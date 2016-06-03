@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="occurrenceReport" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a0072c15-2205-4d7b-9ff5-5f57dc667629">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString>
+		<![CDATA[select * from occurrence]]>
+	</queryString>
+	<field name="dataEventId" class="java.lang.Integer">
+		<fieldDescription><![CDATA[dataEventId]]></fieldDescription>
+	</field>
+	<field name="type" class="java.lang.Integer">
+		<fieldDescription><![CDATA[type]]></fieldDescription>
+	</field>
+	<field name="insertionLoss" class="java.lang.Float">
+		<fieldDescription><![CDATA[insertionLoss]]></fieldDescription>
+	</field>
+	<field name="echoLoss" class="java.lang.Float">
+		<fieldDescription><![CDATA[echoLoss]]></fieldDescription>
+	</field>
+	<field name="distance" class="java.lang.Float">
+		<fieldDescription><![CDATA[distance]]></fieldDescription>
+	</field>
+	<field name="averageAttenuationCoefficient" class="java.lang.Float">
+		<fieldDescription><![CDATA[averageAttenuationCoefficient]]></fieldDescription>
+	</field>
+	<field name="acumulativeLoss" class="java.lang.Float">
+		<fieldDescription><![CDATA[acumulativeLoss]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="17" width="468" height="47" uuid="d164bcdd-0cdd-4ad3-8815-432734713c4f"/>
+				<textElement>
+					<font size="24"/>
+				</textElement>
+				<text><![CDATA[Relatório de Eventos]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="34" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="13" width="555" height="1" uuid="2de24c4f-dc45-4de7-9c3b-1287c3db9c72"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="34" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="30" height="20" uuid="686baa5c-5dde-4dde-9e41-dd2bb2d57fad"/>
+				<text><![CDATA[ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="0" width="39" height="20" uuid="df1be65a-0378-4db3-ac6f-849ba13a09f9"/>
+				<text><![CDATA[Tipo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="85" y="0" width="49" height="20" uuid="5a6a9e8b-fb1c-421c-a5fd-d07583e4f6e4"/>
+				<text><![CDATA[Distância]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="145" y="0" width="73" height="20" uuid="8c1aeeba-0a0f-475a-8efe-31a533610ff2"/>
+				<text><![CDATA[Insertion Loss]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="218" y="0" width="100" height="20" uuid="673847d4-7e34-4f5a-a3a5-0cec02ee36fc"/>
+				<text><![CDATA[Reflection Loss]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="318" y="0" width="100" height="20" uuid="39748334-919a-4ad0-bbc7-79abece5d47f"/>
+				<text><![CDATA[Acumulation Loss]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="432" y="0" width="111" height="20" uuid="b0435128-6122-4aa5-9f2c-52e3249c11ec"/>
+				<text><![CDATA[Attenuation Coefficient]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="27" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="30" height="20" uuid="664ea9a7-3f72-49cd-b4fc-8a6712ab4a4e"/>
+				<textFieldExpression><![CDATA[$F{dataEventId}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="0" width="39" height="20" uuid="70e882a6-0641-4983-a6fd-ece61a9b1300"/>
+				<textFieldExpression><![CDATA[$F{type}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="85" y="0" width="49" height="20" uuid="be46aa07-9ba1-4656-b3fe-30d4dbfe921b"/>
+				<textFieldExpression><![CDATA[$F{distance}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="145" y="0" width="73" height="20" uuid="fec463ad-17c8-4f59-b634-e1d504965eb0"/>
+				<textFieldExpression><![CDATA[$F{insertionLoss}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="218" y="0" width="100" height="20" uuid="a14da2b1-81a5-4113-8fd9-a604b120cb34"/>
+				<textFieldExpression><![CDATA[$F{echoLoss}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="318" y="0" width="100" height="20" uuid="50f90479-ac2a-4d42-b117-4aedffa53ea3"/>
+				<textFieldExpression><![CDATA[$F{acumulativeLoss}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="432" y="0" width="111" height="20" uuid="22ab1961-ecc8-467d-8df6-0d517974a1d1"/>
+				<textFieldExpression><![CDATA[$F{averageAttenuationCoefficient}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="31" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="18" width="555" height="1" uuid="77b9eb6c-296e-4640-9479-431bdbe30712"/>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="33" splitType="Stretch">
+			<textField>
+				<reportElement x="366" y="7" width="102" height="20" uuid="14da5f8b-39d2-4fb3-a529-25d25fd1938d"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="468" y="7" width="64" height="20" uuid="28652b9b-c5f7-471a-a384-cd4e5fdb2c47"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
