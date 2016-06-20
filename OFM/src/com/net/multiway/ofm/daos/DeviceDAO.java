@@ -27,16 +27,7 @@ import com.net.multiway.ofm.entities.Device;
  *
  * @author joshua
  */
-public class DeviceDAO implements Serializable {
-
-    public DeviceDAO(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
+public class DeviceDAO extends DAO implements Serializable {
 
     public void create(Device device) {
         if (device.getOccurrenceList() == null) {

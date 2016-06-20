@@ -24,16 +24,7 @@ import com.net.multiway.ofm.entities.Limit;
  *
  * @author joshua
  */
-public class LimitDAO implements Serializable {
-
-    public LimitDAO(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
+public class LimitDAO extends DAO implements Serializable {
 
     public void create(Limit limit) throws IllegalOrphanException {
         List<String> illegalOrphanMessages = null;

@@ -20,6 +20,7 @@ import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +36,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(schema = "ofm", name = "data_event")
+@Table(name = "data_event")
 @NamedQueries({
     @NamedQuery(name = "DataEvent.findAll", query = "SELECT d FROM DataEvent d"),
     @NamedQuery(name = "DataEvent.findByDataEventId", query = "SELECT d FROM DataEvent d WHERE d.dataEventId = :dataEventId"),
@@ -292,7 +293,7 @@ public class DataEvent implements Externalizable {
     private Data _data;
 
     @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     public Data getData() {
         if (data == null) {
             return _data;

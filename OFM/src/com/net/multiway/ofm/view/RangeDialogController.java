@@ -75,7 +75,7 @@ public class RangeDialogController implements Initializable, IController {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        LimitDAO dao = new LimitDAO(Persistence.createEntityManagerFactory("ofmPU"));
+        LimitDAO dao = new LimitDAO();
         limits = dao.findLimit(1);
         if (limits == null) {
             limits = new Limit(3, 3, 3, 5, 5, 5, 3, 5, 5, 3, new Date());

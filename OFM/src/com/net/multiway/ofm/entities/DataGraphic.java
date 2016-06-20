@@ -20,6 +20,7 @@ import javax.persistence.AccessType;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +36,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(schema = "ofm", name = "data_graphic")
+@Table(name = "data_graphic")
 @NamedQueries({
     @NamedQuery(name = "DataGraphic.findAll", query = "SELECT d FROM DataGraphic d"),
     @NamedQuery(name = "DataGraphic.findByDataGraphicId", query = "SELECT d FROM DataGraphic d WHERE d.dataGraphicId = :dataGraphicId"),
@@ -124,7 +125,7 @@ public class DataGraphic implements Externalizable {
     private Data _data;
 
     @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     public Data getData() {
         if (data == null) {
             return _data;

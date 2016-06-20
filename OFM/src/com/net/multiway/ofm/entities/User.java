@@ -43,7 +43,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(schema = "ofm", name = "user", uniqueConstraints = {
+@Table(name = "user", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"email"}),
     @UniqueConstraint(columnNames = {"username"})})
 @NamedQueries({
@@ -91,7 +91,7 @@ public class User implements Externalizable {
         this._createTime = createTime;
     }
 
-    private IntegerProperty userId;
+    private ObjectProperty<Integer> userId;
     private Integer _userId;
 
     @Id
@@ -114,14 +114,14 @@ public class User implements Externalizable {
         }
     }
 
-    public IntegerProperty userIdProperty() {
+    public ObjectProperty<Integer> userIdProperty() {
         if (userId == null) {
-            userId = new SimpleIntegerProperty(this, "userId", _userId);
+            userId = new SimpleObjectProperty<>(this, "userId", _userId);
         }
         return userId;
     }
     
-    private IntegerProperty isAdmin;
+    private ObjectProperty<Integer> isAdmin;
     private Integer _isAdmin;
     
     @Basic(optional = false)
@@ -142,9 +142,9 @@ public class User implements Externalizable {
         }
     }
 
-    public IntegerProperty isAdmindProperty() {
+    public ObjectProperty<Integer> adminProperty() {
         if (isAdmin == null) {
-            isAdmin = new SimpleIntegerProperty(this, "userId", _isAdmin);
+            isAdmin = new SimpleObjectProperty<>();
         }
         return isAdmin;
     }

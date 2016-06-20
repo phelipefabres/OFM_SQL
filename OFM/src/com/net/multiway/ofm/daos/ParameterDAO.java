@@ -24,17 +24,8 @@ import com.net.multiway.ofm.entities.Parameter;
  *
  * @author joshua
  */
-public class ParameterDAO implements Serializable {
-
-    public ParameterDAO(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
-
+public class ParameterDAO extends DAO implements Serializable {
+    
     public void create(Parameter parameter) throws IllegalOrphanException {
         List<String> illegalOrphanMessages = null;
         Device deviceOrphanCheck = parameter.getDevice();

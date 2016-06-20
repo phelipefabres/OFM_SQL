@@ -8,34 +8,24 @@ package com.net.multiway.ofm.daos;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import com.net.multiway.ofm.entities.Device;
 import com.net.multiway.ofm.entities.User;
 import com.net.multiway.ofm.entities.DataEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
 import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
 import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataGraphic;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 /**
  *
  * @author joshua
  */
-public class DataDAO implements Serializable {
-
-    public DataDAO(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
+public class DataDAO extends DAO implements Serializable {
 
     public void create(Data data) throws IllegalOrphanException {
         if (data.getDataEventList() == null) {

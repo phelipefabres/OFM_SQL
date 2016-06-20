@@ -7,15 +7,7 @@ package com.net.multiway.ofm.report;
 
 import com.net.multiway.ofm.daos.DataEventDAO;
 import com.net.multiway.ofm.daos.OccurrenceDAO;
-import com.net.multiway.ofm.entities.Occurrence;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import javax.persistence.Persistence;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
@@ -25,7 +17,6 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.view.JasperViewer;
 
 /**
@@ -38,7 +29,7 @@ public class Reports {
         // HashMap paramRel = new HashMap();
 
         try {
-            OccurrenceDAO dao = new OccurrenceDAO(Persistence.createEntityManagerFactory("ofmPU"));
+            OccurrenceDAO dao = new OccurrenceDAO();
             JasperReport report = JasperCompileManager.compileReport("resources/occurrenceReport.jrxml");
 
             JRDataSource jrds = new JRBeanCollectionDataSource(dao.findOccurrenceEntities());
@@ -55,7 +46,7 @@ public class Reports {
     public void eventsReport() throws SQLException, JRException {
 
         try {
-            DataEventDAO dao = new DataEventDAO(Persistence.createEntityManagerFactory("ofmPU"));
+            DataEventDAO dao = new DataEventDAO();
             JasperReport report = JasperCompileManager.compileReport("resources/eventsReport.jrxml");
 
             JRDataSource jrds = new JRBeanCollectionDataSource(dao.findDataEventEntities());

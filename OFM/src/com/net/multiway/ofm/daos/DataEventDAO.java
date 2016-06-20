@@ -16,22 +16,43 @@ import javax.persistence.criteria.Root;
 import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
 import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataEvent;
+import java.util.ArrayList;
 
 /**
  *
  * @author joshua
  */
-public class DataEventDAO implements Serializable {
+public class DataEventDAO extends DAO implements Serializable {
 
-    public DataEventDAO(EntityManagerFactory emf) {
-        this.emf = emf;
+        public void createAll(ArrayList<DataEvent> dataEvents) {
+        EntityManager em = null;
+        try {
+            
+            em = getEntityManager();
+            em.getTransaction().begin();
+            
+            for(DataEvent dataEvent : dataEvents) {
+                Data data = dataEvent.getData();
+                if (data != null) {
+                    data = em.getReference(data.getClass(), data.getDataId());
+                    dataEvent.setData(data);
+                }
+                em.persist(dataEvent);
+                if (data != null) {
+                    data.getDataEventList().add(dataEvent);
+                    data = em.merge(data);
+                }
+            }
+            
+            em.getTransaction().commit();
+            
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
     }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
-
+    
     public void create(DataEvent dataEvent) {
         EntityManager em = null;
         try {

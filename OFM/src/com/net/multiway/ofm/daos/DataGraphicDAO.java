@@ -16,22 +16,43 @@ import javax.persistence.criteria.Root;
 import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
 import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataGraphic;
+import java.util.ArrayList;
 
 /**
  *
  * @author joshua
  */
-public class DataGraphicDAO implements Serializable {
+public class DataGraphicDAO extends DAO implements Serializable {
 
-    public DataGraphicDAO(EntityManagerFactory emf) {
-        this.emf = emf;
+    public void createAll(ArrayList<DataGraphic> dataGraphics) {
+        
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            
+            for(DataGraphic dataGraphic : dataGraphics) {
+                Data data = dataGraphic.getData();
+                if (data != null) {
+                    data = em.getReference(data.getClass(), data.getDataId());
+                    dataGraphic.setData(data);
+                }
+                em.persist(dataGraphic);
+                if (data != null) {
+                    data.getDataGraphicList().add(dataGraphic);
+                    data = em.merge(data);
+                }
+            }
+            
+            em.getTransaction().commit();
+            
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
     }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
-
+    
     public void create(DataGraphic dataGraphic) {
         EntityManager em = null;
         try {

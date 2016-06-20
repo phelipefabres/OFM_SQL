@@ -39,7 +39,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(schema = "ofm", name = "occurrence")
+@Table(name = "occurrence")
 @NamedQueries({
     @NamedQuery(name = "Occurrence.findAll", query = "SELECT o FROM Occurrence o"),
     @NamedQuery(name = "Occurrence.findByOccurrenceId", query = "SELECT o FROM Occurrence o WHERE o.occurrenceId = :occurrenceId"),

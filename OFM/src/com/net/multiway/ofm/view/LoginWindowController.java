@@ -60,7 +60,7 @@ public class LoginWindowController implements Initializable, IController {
 
     @FXML
     private void onHandleLogin(ActionEvent event) {
-        UserDAO userDao = new UserDAO(Persistence.createEntityManagerFactory("ofmPU"));
+        UserDAO userDao = new UserDAO();
 
         List<User> userList = userDao.findByUsername(userField.getText());
         if (userList.size() < 1) {
@@ -94,7 +94,7 @@ public class LoginWindowController implements Initializable, IController {
                     String msg = "ConfigurationWindow inicializada...";
                     Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 } else {
-                    DeviceDAO dao = new DeviceDAO(Persistence.createEntityManagerFactory("ofmPU"));
+                    DeviceDAO dao = new DeviceDAO();
                     List<Device> deviceList = dao.findDeviceEntities();
                     if (deviceList.size() < 1) {
                         String msg = "Não há referência. Contacte o administrador para gerar uma referência.";
@@ -124,6 +124,7 @@ public class LoginWindowController implements Initializable, IController {
             }
 
         }
+        System.out.println("Fim da execução de login.");
     }
 
     @Override
@@ -138,21 +139,21 @@ public class LoginWindowController implements Initializable, IController {
 
     @Override
     public void prepareMenu(Mode mode) {
-        switch (mode) {
-            case VIEW:
-                System.out.println("Aqui!");
-                MainApp.getInstance().disable(Menu.Print, true);
-                MainApp.getInstance().disable(Menu.ExportEL, true);
-                MainApp.getInstance().disable(Menu.ExportLR, true);
-                MainApp.getInstance().disable(Menu.ExportOL, true);
-                MainApp.getInstance().disable(Menu.Print, true);
-                break;
-
-            default:
-                throw new AssertionError(mode.name());
-
-        }
-
+//        switch (mode) {
+//            case VIEW:
+//                System.out.println("Aqui!");
+//                MainApp.getInstance().disable(Menu.Print, true);
+//                MainApp.getInstance().disable(Menu.ExportEL, true);
+//                MainApp.getInstance().disable(Menu.ExportLR, true);
+//                MainApp.getInstance().disable(Menu.ExportOL, true);
+//                MainApp.getInstance().disable(Menu.Print, true);
+//                break;
+//
+//            default:
+//                throw new AssertionError(mode.name());
+//
+//        }
+//
     }
 
 }

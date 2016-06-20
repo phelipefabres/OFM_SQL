@@ -21,16 +21,7 @@ import com.net.multiway.ofm.entities.Occurrence;
  *
  * @author joshua
  */
-public class OccurrenceDAO implements Serializable {
-
-    public OccurrenceDAO(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
+public class OccurrenceDAO extends DAO implements Serializable {
 
     public void create(Occurrence occurrence) {
         EntityManager em = null;

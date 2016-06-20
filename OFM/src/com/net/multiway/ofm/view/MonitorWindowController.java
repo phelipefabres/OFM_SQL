@@ -239,7 +239,7 @@ public class MonitorWindowController extends ControllerExec {
                             executionLabel.setText(msg);
 
                             saveOccurrence(receiveParameters.getData().getDataEventList().size());
-                            OccurrenceDAO dao = new OccurrenceDAO(emf);
+                            OccurrenceDAO dao = new OccurrenceDAO();
                             displayOccurrence(dao.findOccurrenceEntities());
                         }
                     }
@@ -296,26 +296,26 @@ public class MonitorWindowController extends ControllerExec {
 
     @Override
     public void prepareMenu(Mode mode) {
-        switch (mode) {
-            case VIEW:
-                MainApp.getInstance().disable(Menu.Print, true);
-                MainApp.getInstance().disable(Menu.ExportEL, true);
-                MainApp.getInstance().disable(Menu.ExportLR, true);
-                MainApp.getInstance().disable(Menu.ExportOL, true);
-                MainApp.getInstance().disable(Menu.Print, true);
-                break;
-            case EDIT:
-                MainApp.getInstance().disable(Menu.Print, false);
-                MainApp.getInstance().disable(Menu.ExportEL, false);
-                MainApp.getInstance().disable(Menu.ExportLR, false);
-                MainApp.getInstance().disable(Menu.ExportOL, false);
-                MainApp.getInstance().disable(Menu.Print, false);
-                break;
-
-            default:
-                throw new AssertionError(mode.name());
-
-        }
+//        switch (mode) {
+//            case VIEW:
+//                MainApp.getInstance().disable(Menu.Print, true);
+//                MainApp.getInstance().disable(Menu.ExportEL, true);
+//                MainApp.getInstance().disable(Menu.ExportLR, true);
+//                MainApp.getInstance().disable(Menu.ExportOL, true);
+//                MainApp.getInstance().disable(Menu.Print, true);
+//                break;
+//            case EDIT:
+//                MainApp.getInstance().disable(Menu.Print, false);
+//                MainApp.getInstance().disable(Menu.ExportEL, false);
+//                MainApp.getInstance().disable(Menu.ExportLR, false);
+//                MainApp.getInstance().disable(Menu.ExportOL, false);
+//                MainApp.getInstance().disable(Menu.Print, false);
+//                break;
+//
+//            default:
+//                throw new AssertionError(mode.name());
+//
+//        }
     }
 
     @FXML
@@ -369,7 +369,7 @@ public class MonitorWindowController extends ControllerExec {
 
         Occurrence occurr = new Occurrence();
         LocalDateTime timePoint = LocalDateTime.now();
-        DeviceDAO deviceDao = new DeviceDAO(emf);
+        DeviceDAO deviceDao = new DeviceDAO();
 
         List<Device> deviceList = deviceDao.findDeviceEntities();
         int id = 0;
@@ -381,7 +381,7 @@ public class MonitorWindowController extends ControllerExec {
         Device deviceReference = deviceDao.findDevice(id);
         Data dataReference = deviceReference.getData();
         Limit limitReference = deviceReference.getLimit();
-        DataEventDAO eventDAO = new DataEventDAO(emf);
+        DataEventDAO eventDAO = new DataEventDAO();
         List<DataEvent> eventsReference = eventDAO.findDataEventEntities();
 
         Data dataNow = receiveParameters.getData();
@@ -463,7 +463,7 @@ public class MonitorWindowController extends ControllerExec {
         }
 
         occurr.setDevice(device);
-        OccurrenceDAO dao = new OccurrenceDAO(emf);
+        OccurrenceDAO dao = new OccurrenceDAO();
 
         occurr.setDevice(device);
         dao.create(occurr);

@@ -124,7 +124,7 @@ public class ConfigurationWindowController extends ControllerExec {
 
         executionLabel.setVisible(false);
 
-        DeviceDAO dao = new DeviceDAO(emf);
+        DeviceDAO dao = new DeviceDAO();
         devicesData.addAll(dao.findDeviceEntities());
         devicesList.setItems(devicesData);
         updateDeviceList();
@@ -166,7 +166,7 @@ public class ConfigurationWindowController extends ControllerExec {
         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
         cycleTimeField.setText(parameters.getCycleTime().toString());
-        prepareMenu(Mode.EDIT);
+        //prepareMenu(Mode.EDIT);
 
     }
 
@@ -175,7 +175,7 @@ public class ConfigurationWindowController extends ControllerExec {
         device = devicesList.getSelectionModel().getSelectedItem();
 
         if (device.getDeviceId() != null) {
-            DeviceDAO daop = new DeviceDAO(emf);
+            DeviceDAO daop = new DeviceDAO();
             Device ref = daop.findDevice(device.getDeviceId());
             parameters = ref.getParameter();
         } else {
@@ -195,7 +195,7 @@ public class ConfigurationWindowController extends ControllerExec {
             if (AlertDialog.DeviceDeletion(devicesList.getSelectionModel().getSelectedItem().getIp())) {
                 if (device.getDeviceId() != null) {
                     try {
-                        DeviceDAO daoRef = new DeviceDAO(emf);
+                        DeviceDAO daoRef = new DeviceDAO();
                         daoRef.destroy(device.getDeviceId());
 
                     } catch (Exception ex) {
@@ -435,13 +435,13 @@ public class ConfigurationWindowController extends ControllerExec {
     private void onHandleSetReference() {
         if (receiveParameters != null && receiveValues != null && device != null && limits != null) {
 
-            DeviceDAO deviceDao = new DeviceDAO(emf);
-            ParameterDAO parameterDao = new ParameterDAO(emf);
-            LimitDAO limitDao = new LimitDAO(emf);
-            DataDAO dataDao = new DataDAO(emf);
-            DataGraphicDAO dataGraphicDao = new DataGraphicDAO(emf);
-            DataEventDAO dataEventDao = new DataEventDAO(emf);
-            UserDAO userDao = new UserDAO(emf);
+            DeviceDAO deviceDao = new DeviceDAO();
+            ParameterDAO parameterDao = new ParameterDAO();
+            LimitDAO limitDao = new LimitDAO();
+            DataDAO dataDao = new DataDAO();
+            DataGraphicDAO dataGraphicDao = new DataGraphicDAO();
+            DataEventDAO dataEventDao = new DataEventDAO();
+            UserDAO userDao = new UserDAO();
 
             try {
                 List<Device> deviceList = deviceDao.findDeviceEntities();
@@ -504,17 +504,21 @@ public class ConfigurationWindowController extends ControllerExec {
                 for (int i = 0; i < even.size(); i++) {
                     DataEvent dataEvent = even.get(i);
                     dataEvent.setData(data);
-                    dataEventDao.create(dataEvent);
+//                    dataEventDao.create(dataEvent);
                     data.getDataEventList().add(dataEvent);
                 }
-//                    ArrayList<DataGraphic> list = (ArrayList<DataGraphic>) receiveParameters.getData().getDataGraphicList();
-//                    for (int i = 0; i < list.size(); i++) {
-//                        DataGraphic dataGraphic = list.get(i); //enlace bidirecional
-//                        dataGraphic.setData(data);
-//                        dataGraphicDao.create(dataGraphic);
-//                        // data.getDataGraphicList().add(dataGraphic);
-//
-//                    }
+                ArrayList<DataGraphic> list = (ArrayList<DataGraphic>) receiveParameters.getData().getDataGraphicList();
+                for (int i = 0; i < list.size(); i++) {
+                    DataGraphic dataGraphic = list.get(i); //enlace bidirecional
+                    dataGraphic.setData(data);
+//                    dataGraphicDao.create(dataGraphic);
+                    data.getDataGraphicList().add(dataGraphic);
+
+                }
+                
+                dataEventDao.createAll(even);
+                dataGraphicDao.createAll(list);
+                
                 device = d;
                 parameters = parameter;
                 limits = limit;
@@ -536,7 +540,7 @@ public class ConfigurationWindowController extends ControllerExec {
 
     @FXML
     private void onHandleChangeToMonitor() throws IOException {
-        DeviceDAO deviceDao = new DeviceDAO(emf);
+        DeviceDAO deviceDao = new DeviceDAO();
 
         List<Device> deviceList = deviceDao.findDeviceEntities();
 //        for (Device p : deviceList) {
@@ -565,7 +569,7 @@ public class ConfigurationWindowController extends ControllerExec {
     @Override
     public void prepareForm(Mode mode) {
         switch (mode) {
-            case EDIT:
+            case VIEW:
                 measureRangeField.setDisable(true);
                 pulseWidthField.setDisable(true);
                 measureTimeField.setDisable(true);
@@ -578,7 +582,7 @@ public class ConfigurationWindowController extends ControllerExec {
                 buttonSave.setDisable(true);
                 cycleTimeField.setDisable(true);
                 break;
-            case VIEW:
+            case EDIT:
                 measureRangeField.setDisable(false);
                 pulseWidthField.setDisable(false);
                 measureTimeField.setDisable(false);
@@ -597,27 +601,27 @@ public class ConfigurationWindowController extends ControllerExec {
 
     @Override
     public void prepareMenu(Mode mode) {
-        switch (mode) {
-            case VIEW:
-                MainApp.getInstance().disable(Menu.Print, true);
-                MainApp.getInstance().disable(Menu.ExportEL, true);
-                MainApp.getInstance().disable(Menu.ExportLR, true);
-                MainApp.getInstance().disable(Menu.ExportOL, true);
-                MainApp.getInstance().disable(Menu.Print, true);
-                break;
-            case EDIT:
-                System.out.println("Aqui!");
-                MainApp.getInstance().disable(Menu.Print, false);
-                MainApp.getInstance().disable(Menu.ExportEL, false);
-                MainApp.getInstance().disable(Menu.ExportLR, false);
-                MainApp.getInstance().disable(Menu.ExportOL, false);
-                MainApp.getInstance().disable(Menu.Print, false);
-                break;
-
-            default:
-                throw new AssertionError(mode.name());
-
-        }
+//        switch (mode) {
+//            case VIEW:
+//                MainApp.getInstance().disable(Menu.Print, true);
+//                MainApp.getInstance().disable(Menu.ExportEL, true);
+//                MainApp.getInstance().disable(Menu.ExportLR, true);
+//                MainApp.getInstance().disable(Menu.ExportOL, true);
+//                MainApp.getInstance().disable(Menu.Print, true);
+//                break;
+//            case EDIT:
+//                System.out.println("Aqui!");
+//                MainApp.getInstance().disable(Menu.Print, false);
+//                MainApp.getInstance().disable(Menu.ExportEL, false);
+//                MainApp.getInstance().disable(Menu.ExportLR, false);
+//                MainApp.getInstance().disable(Menu.ExportOL, false);
+//                MainApp.getInstance().disable(Menu.Print, false);
+//                break;
+//
+//            default:
+//                throw new AssertionError(mode.name());
+//
+//        }
 
     }
 

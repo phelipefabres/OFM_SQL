@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import com.net.multiway.ofm.daos.exceptions.IllegalOrphanException;
 import com.net.multiway.ofm.daos.exceptions.NonexistentEntityException;
+import com.net.multiway.ofm.database.Database;
 import com.net.multiway.ofm.entities.Parameter;
 import com.net.multiway.ofm.entities.Limit;
 import com.net.multiway.ofm.entities.Device;
@@ -26,17 +27,8 @@ import com.net.multiway.ofm.entities.User;
  *
  * @author joshua
  */
-public class UserDAO implements Serializable {
-
-    public UserDAO(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
-    private EntityManagerFactory emf = null;
-
-    public EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
-
+public class UserDAO extends DAO implements Serializable {
+  
     public void create(User user) {
         if (user.getDataList() == null) {
             user.setDataList(new ArrayList<Data>());

@@ -86,11 +86,15 @@ public abstract class ControllerExec implements Initializable, IController {
         int n = receiveParameters.getData().getDataGraphicList().size();
         int fz = receiveParameters.getData().getSampleFrequency();
         float m = receiveParameters.getData().getDataEventList().get(k).getDistance();
-
+        System.out.println("Fz = "+fz);
+        System.out.println("N1 = "+n1);
+        System.out.println("N = "+n);
+        System.out.println("Pulse = "+receiveParameters.getData().getPulseWidth());
         for (DataGraphic data : receiveParameters.getData().getDataGraphicList()) {
             int c = data.getPoint();
+            
             float dx = 2 * n * fz;
-            dx =  (i / dx)*1000000000;
+            dx =  (i / dx) * 1000000000;
 
             float mdx = 2 * n1 * fz;
             mdx = (i / mdx);

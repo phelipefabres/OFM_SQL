@@ -47,7 +47,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(schema = "ofm", name = "device", uniqueConstraints = {
+@Table(name = "device", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"name"})})
 @NamedQueries({
     @NamedQuery(name = "Device.findAll", query = "SELECT d FROM Device d"),

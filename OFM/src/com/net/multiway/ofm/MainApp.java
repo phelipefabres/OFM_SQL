@@ -5,6 +5,7 @@
  */
 package com.net.multiway.ofm;
 
+import com.net.multiway.ofm.database.Database;
 import com.net.multiway.ofm.model.IController;
 import com.net.multiway.ofm.model.Mode;
 import com.net.multiway.ofm.model.View;
@@ -93,11 +94,16 @@ public class MainApp extends Application {
             configNode = loader.load();
             configController = (IController) loader.getController();
             configController.prepareForm(Mode.VIEW);
-            configController.prepareMenu(Mode.VIEW);
+//            configController.prepareMenu(Mode.VIEW);
             rootController.setCenterController(configController);
             rootLayout.setCenter((AnchorPane) configNode);
 
             msg = "LoginWindow inicializada...";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+
+            Database.getInstance().getEntityManagerFactory();
+            
+            msg = "Banco de dados carregado...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
         } catch (IOException ex) {
             Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
