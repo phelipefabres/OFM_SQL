@@ -126,9 +126,8 @@
                                        <children>
                                           <TableView fx:id="resultTable" prefHeight="97.0" prefWidth="731.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <columns>
-                                              <TableColumn fx:id="numeroColumn" editable="false" prefWidth="54.0" text="No." />
-                                              <TableColumn fx:id="typeColumn" prefWidth="63.0" text="Type" />
-                                                <TableColumn fx:id="distanceColumn" prefWidth="111.0" text="Distance(m)" />
+                                              <TableColumn fx:id="typeColumn" prefWidth="63.0" text="Tipo" />
+                                                <TableColumn fx:id="distanceColumn" prefWidth="111.0" text="Distância(m)" />
                                                 <TableColumn fx:id="insertLossColumn" prefWidth="130.0" text="Insert Loss(dB)" />
                                                 <TableColumn fx:id="reflectLossColumn" prefWidth="150.0" text="Reflect Loss(dB)" />
                                                 <TableColumn fx:id="accumulationColumn" prefWidth="180.0" text="Accumulation Loss(dB)" />
@@ -144,7 +143,6 @@
                                        <children>
                                           <TableView fx:id="occurrenceTable" prefHeight="97.0" prefWidth="731.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <columns>
-                                              <TableColumn fx:id="idColumm" prefWidth="33.0" text="ID" />
                                               <TableColumn fx:id="occurrenceColumm" prefWidth="195.0" text="Ocorrencia" />
                                                 <TableColumn fx:id="descriptionColumm" prefWidth="390.0" text="Descricao" />
                                                 <TableColumn fx:id="dateColumm" prefWidth="111.0" text="Data/Hora" />

@@ -173,7 +173,7 @@ public class MainSceneController implements Initializable, IController {
 
 //            // Define o device no controller.
             RangeDialogController controller = loader.getController();
-            controller.setDialogStage(dialogStage);
+            //controller.setDialogStage(dialogStage);
             //controller.setRange(limit);
 
             // Mostra a janela e espera até o usuário fechar.

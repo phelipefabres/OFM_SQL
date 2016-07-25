@@ -63,7 +63,8 @@ public class LoginWindowController implements Initializable, IController {
         UserDAO userDao = new UserDAO();
 
         List<User> userList = userDao.findByUsername(userField.getText());
-        if (userList.size() < 1) {
+
+        if (userList.isEmpty()) {
             User user = new User();
             user.setUsername("admin");
             user.setEmail("teste@teste.com");
@@ -71,16 +72,19 @@ public class LoginWindowController implements Initializable, IController {
             user.setisAdmin(1);
             user.setCreateTime(new Date());
             userDao.create(user);
+            String msg = "Usuário não encontrado.";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+            AlertDialog.LoginInvalid();
         } else {
 //            System.out.println(userList.size());
 //            if (userList.size() < 2) {
-//                User user = new User();
-//                user.setUsername("junior");
-//                user.setEmail("teste@teste.com");
-//                user.setPassword("123");
-//                user.setisAdmin(0);
-//                user.setCreateTime(new Date());
-//                userDao.create(user);
+//                User user2 = new User();
+//                user2.setUsername("junior");
+//                user2.setEmail("teste2@teste.com");
+//                user2.setPassword("123");
+//                user2.setisAdmin(0);
+//                user2.setCreateTime(new Date());
+//                userDao.create(user2);
 //            }
             User user = null;
             for (User p : userList) {
@@ -90,7 +94,11 @@ public class LoginWindowController implements Initializable, IController {
             }
             if (user != null) {
                 if (user.getisAdmin() == 1) {
-                    MainApp.getInstance().showView(View.ConfigurationWindow, Mode.EDIT);
+                    ConfigurationWindowController controller
+                            = (ConfigurationWindowController) MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
+
+                    controller.setUser(user);
+//                    MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
                     String msg = "ConfigurationWindow inicializada...";
                     Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 } else {
@@ -109,7 +117,7 @@ public class LoginWindowController implements Initializable, IController {
                             MonitorWindowController controller
                                     = (MonitorWindowController) MainApp.getInstance().showView(View.MonitorWindow, Mode.VIEW);
 
-                            controller.setReference(deviceReference);
+                            controller.setReference(deviceReference, user);
 
                         } else {
                             AlertDialog.referenceMissing();
@@ -139,21 +147,20 @@ public class LoginWindowController implements Initializable, IController {
 
     @Override
     public void prepareMenu(Mode mode) {
-//        switch (mode) {
-//            case VIEW:
-//                System.out.println("Aqui!");
-//                MainApp.getInstance().disable(Menu.Print, true);
-//                MainApp.getInstance().disable(Menu.ExportEL, true);
-//                MainApp.getInstance().disable(Menu.ExportLR, true);
-//                MainApp.getInstance().disable(Menu.ExportOL, true);
-//                MainApp.getInstance().disable(Menu.Print, true);
-//                break;
-//
-//            default:
-//                throw new AssertionError(mode.name());
-//
-//        }
-//
+        switch (mode) {
+            case VIEW:
+                MainApp.getInstance().disable(Menu.Print, true);
+                MainApp.getInstance().disable(Menu.ExportEL, true);
+                MainApp.getInstance().disable(Menu.ExportLR, true);
+                MainApp.getInstance().disable(Menu.ExportOL, true);
+                MainApp.getInstance().disable(Menu.Print, true);
+                break;
+
+            default:
+                throw new AssertionError(mode.name());
+
+        }
+
     }
 
 }

@@ -88,13 +88,12 @@ public class MainApp extends Application {
             String msg = "MainScene inicializada...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
-      
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource(View.LoginWindow.getResource()));
             configNode = loader.load();
             configController = (IController) loader.getController();
             configController.prepareForm(Mode.VIEW);
-//            configController.prepareMenu(Mode.VIEW);
+            configController.prepareMenu(Mode.VIEW);
             rootController.setCenterController(configController);
             rootLayout.setCenter((AnchorPane) configNode);
 
@@ -102,7 +101,7 @@ public class MainApp extends Application {
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
             Database.getInstance().getEntityManagerFactory();
-            
+
             msg = "Banco de dados carregado...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
         } catch (IOException ex) {
@@ -162,7 +161,6 @@ public class MainApp extends Application {
 //        String msg = "showConfiguration inicializado...";
 //        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 //    }
-
     public static void main(String[] args) {
         launch(args);
     }

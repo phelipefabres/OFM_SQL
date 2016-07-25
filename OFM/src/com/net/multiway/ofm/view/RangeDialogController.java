@@ -11,6 +11,7 @@ import com.net.multiway.ofm.model.IController;
 import com.net.multiway.ofm.model.Mode;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -76,7 +77,8 @@ public class RangeDialogController implements Initializable, IController {
     public void initialize(URL url, ResourceBundle rb) {
         
         LimitDAO dao = new LimitDAO();
-        limits = dao.findLimit(1);
+        limits = dao.findLimitEntities().get(0);
+       
         if (limits == null) {
             limits = new Limit(3, 3, 3, 5, 5, 5, 3, 5, 5, 3, new Date());
         }
@@ -110,8 +112,9 @@ public class RangeDialogController implements Initializable, IController {
      *
      * @param dialogStage
      */
-    public void setDialogStage(Stage dialogStage) {
+    public void setDialogStage(Stage dialogStage, Limit limits) {
         this.dialogStage = dialogStage;
+        this.limits = limits;
     }
 
     /**

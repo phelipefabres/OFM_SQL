@@ -126,6 +126,15 @@ public class AlertDialog {
         alert.showAndWait();
     }
 
+    public static void deviceErro(String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Atenção");
+        alert.setHeaderText("Comando não válido!");
+        alert.setContentText(text);
+
+        alert.showAndWait();
+    }
+
     public static void timeOut(String ip) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Time Out");
@@ -158,6 +167,14 @@ public class AlertDialog {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Não existe uma referência.");
         alert.setHeaderText("Você precisa ter uma referência antes entrar no modo Monitor. Contate o Administrador do Sistema.");
+
+        alert.showAndWait();
+    }
+
+    public static void isNotAdmin() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Usuário não pode acessar essa área.");
+        alert.setHeaderText("Você precisa ser Administrador do Sistema para acessa essa área.");
 
         alert.showAndWait();
     }

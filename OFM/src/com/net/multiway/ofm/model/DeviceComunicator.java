@@ -6,7 +6,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-
 import com.net.multiway.ofm.entities.StopTest;
 import com.net.multiway.ofm.entities.Device;
 import com.net.multiway.ofm.entities.Parameter;
@@ -61,7 +60,8 @@ public class DeviceComunicator {
         try {
             this.client = new Socket();
             this.client.connect(new InetSocketAddress(this.ip, this.door), 2000);
-            System.out.println("O cliente se conectou ao OTDR!");
+            String msg = "Connected to OTDR.";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
             this.in = new DataInputStream(client.getInputStream());
             this.out = new DataOutputStream(client.getOutputStream());
         } catch (Exception ex) {

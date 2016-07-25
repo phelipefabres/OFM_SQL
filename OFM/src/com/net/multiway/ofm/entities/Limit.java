@@ -491,7 +491,7 @@ public class Limit implements Externalizable {
         }
     }
 
-    public ObjectProperty<Date> Property() {
+    public ObjectProperty<Date> updateTimeProperty() {
         if (updateTime == null) {
             updateTime = new SimpleObjectProperty<>(this, "updateTime", _updateTime);
         }

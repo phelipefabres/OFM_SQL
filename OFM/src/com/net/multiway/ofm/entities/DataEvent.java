@@ -9,12 +9,9 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import javafx.beans.property.FloatProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
@@ -170,11 +167,17 @@ public class DataEvent implements Externalizable {
         }
     }
 
-    public ObjectProperty<Integer> typeProperty() {
-        if (type == null) {
-            type = new SimpleObjectProperty<>(_type);
+    public SimpleStringProperty typeProperty() {
+        if (type.get() == 0) {
+            return new SimpleStringProperty("Início");
+        } else if (type.get() == 1) {
+            return new SimpleStringProperty("Reflexão");
+        } else if (type.get() == 2) {
+            return new SimpleStringProperty("Não-Reflexão");
+        } else if (type.get() == 3) {
+            return new SimpleStringProperty("Fim");
         }
-        return type;
+        return null;
     }
 
     private ObjectProperty<Float> echoLoss;

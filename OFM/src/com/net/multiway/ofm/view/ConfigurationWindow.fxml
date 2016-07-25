@@ -7,6 +7,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -84,13 +85,13 @@
                                 <rowConstraints>
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
                                     <Label text="Configurar Limites" />
                                     <Button fx:id="buttonEditLimit" mnemonicParsing="false" onAction="#onHandleEditLimit" text="Editar" GridPane.columnIndex="1" />
                                  </children>
                               </GridPane>
+                              <ProgressBar fx:id="progressBar" layoutX="29.0" layoutY="470.0" prefWidth="200.0" />
                            </children>
                         </AnchorPane>
                     </items>
@@ -120,9 +121,8 @@
                            <children>
                               <TableView fx:id="resultTable" prefHeight="170.0" prefWidth="490.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                 <columns>
-                                  <TableColumn fx:id="numeroColumn" editable="false" prefWidth="54.0" text="No." />
-                                  <TableColumn fx:id="typeColumn" prefWidth="63.0" text="Type" />
-                                    <TableColumn fx:id="distanceColumn" prefWidth="111.0" text="Distance(m)" />
+                                  <TableColumn fx:id="typeColumn" prefWidth="63.0" text="Tipo" />
+                                    <TableColumn fx:id="distanceColumn" prefWidth="111.0" text="Distância(m)" />
                                     <TableColumn fx:id="insertLossColumn" prefWidth="130.0" text="Insert Loss(dB)" />
                                     <TableColumn fx:id="reflectLossColumn" prefWidth="150.0" text="Reflect Loss(dB)" />
                                     <TableColumn fx:id="accumulationColumn" prefWidth="180.0" text="Accumulation Loss(dB)" />

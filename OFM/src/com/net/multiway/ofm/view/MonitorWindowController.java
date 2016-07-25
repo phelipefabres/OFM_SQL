@@ -9,11 +9,13 @@ import com.net.multiway.ofm.MainApp;
 import com.net.multiway.ofm.daos.DataEventDAO;
 import com.net.multiway.ofm.daos.DeviceDAO;
 import com.net.multiway.ofm.daos.OccurrenceDAO;
+import com.net.multiway.ofm.daos.UserDAO;
 import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataEvent;
 import com.net.multiway.ofm.entities.Device;
 import com.net.multiway.ofm.entities.Limit;
 import com.net.multiway.ofm.entities.Occurrence;
+import com.net.multiway.ofm.entities.User;
 import com.net.multiway.ofm.exception.AlertDialog;
 import com.net.multiway.ofm.model.ControllerExec;
 import com.net.multiway.ofm.model.DeviceComunicator;
@@ -22,6 +24,8 @@ import com.net.multiway.ofm.model.View;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -30,6 +34,7 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,7 +57,8 @@ public class MonitorWindowController extends ControllerExec {
     private ObservableList<Occurrence> occurrenceList;
     private Occurrence occurrence;
     //Thread de execução do monitor
-    private Thread tr;
+    private Service service;
+    private Service worker;
     private int count = 0;
     //device
     @FXML
@@ -139,9 +145,9 @@ public class MonitorWindowController extends ControllerExec {
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
         occurrence = new Occurrence();
-
+        this.worker = null;
         prepareForm(Mode.VIEW);
-       // prepareMenu(Mode.VIEW);
+        // prepareMenu(Mode.VIEW);
     }
 
     @FXML
@@ -170,84 +176,175 @@ public class MonitorWindowController extends ControllerExec {
                 buttonExport.setDisable(true);
                 buttonStop.setDisable(false);
 
-                Task execute;
-                execute = new Task() {
+                service = new Service() {
                     @Override
-                    protected Void call() throws Exception {
-                        count = 0;
-                        while (!buttonStop.isDisable()) {
-                            if (resultTable.getItems().size() > 0 && grafico.getData().size() > 0) {
-                                resultTable.getItems().remove(0, resultTable.getItems().size());
-                            }
-                            host.connect(parameters);
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
+                    protected Task createTask() {
+                        return new Task() {
+                            @Override
+                            protected Object call() throws Exception {
+                                count = 0;
+                                while (!buttonStop.isDisable()) {
+                                    if (resultTable.getItems().size() > 0 && grafico.getData().size() > 0) {
+                                        resultTable.getItems().remove(0, resultTable.getItems().size());
+                                    }
+                                    host.connect(parameters);
+                                    Platform.runLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                updateMessage(++count);
+                                            } catch (Exception ex) {
+                                                Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                        }
+                                    });
+
                                     try {
-                                        updateMessage(++count);
-                                    } catch (Exception ex) {
-                                        Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                                        // Sleep at least n milliseconds.
+                                        Thread.sleep(1000 * 60 * parameters.getCycleTime());
+                                    } catch (InterruptedException ex) {
+                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, "Thread Interrompida.");
                                     }
                                 }
-                            });
 
-                            try {
-                                // Sleep at least n milliseconds.
-                                Thread.sleep(1000 * 60 * parameters.getCycleTime());
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, "Thread Interrompida.");
+                                buttonExecute.setDisable(false);
+                                buttonConfig.setDisable(false);
+                                buttonExport.setDisable(false);
+
+                                return null;
                             }
-                        }
 
-                        buttonExecute.setDisable(false);
-                        buttonConfig.setDisable(false);
-                        buttonExport.setDisable(false);
+                            @Override
+                            protected void failed() {
+                                super.failed();
+                                buttonExecute.setDisable(false);
+                                buttonConfig.setDisable(false);
+                                buttonStop.setDisable(true);
+                                Exception ex = new Exception(getException());
+                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, ex.getMessage());
+                                AlertDialog.exception(ex);
+                            }
 
-                        return null;
-                    }
+                            private void updateMessage(int count) throws Exception {
+                                String msg = "Envio de dados finalizado.";
+                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                executionLabel.setText(msg);
 
-                    @Override
-                    protected void failed() {
-                        super.failed();
-                        buttonExecute.setDisable(false);
-                        buttonConfig.setDisable(false);
-                        buttonStop.setDisable(true);
-                        Exception ex = new Exception(getException());
-                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, ex.getMessage());
-                        AlertDialog.exception(ex);
-                    }
+                                receiveParameters = host.getReceiveParametersData();
+                                if (receiveParameters != null) {
+                                    grafico.getData().clear();
+                                    plotGraph();
+                                    grafico.setCreateSymbols(false);
 
-                    private void updateMessage(int count) throws Exception {
-                        String msg = "Envio de dados finalizado.";
-                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                        executionLabel.setText(msg);
+                                    List<Occurrence> list = new ArrayList<>();
+                                    Occurrence tmp = saveOccurrence(receiveParameters.getData().getDataEventList().size());
+                                    System.out.println(tmp.getType());
 
-                        receiveParameters = host.getReceiveParametersData();
-                        if (receiveParameters != null) {
-                            resultTable.setItems(FXCollections.observableArrayList(receiveParameters.getData().getDataEventList()));
+                                    if (tmp.getType().compareTo("ERRO") == 0) {
 
-                            msg = "Eventos atualizados na tela de configuração.";
-                            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                            executionLabel.setText(msg);
+                                        worker = new Service() {
+                                            @Override
+                                            protected Task createTask() {
+                                                return new Task() {
+                                                    @Override
+                                                    protected Object call() throws Exception {
 
-                            receiveValues = host.getReceiveValues();
-                            grafico.getData().clear();
-                            plotGraph();
-                            grafico.setCreateSymbols(false);
-                            msg = "Gráfico plotado. Iteração " + count;
-                            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                            executionLabel.setText(msg);
+                                                        for (int i = 0; i < 3; i++) {
+                                                            if (resultTable.getItems().size() > 0 && grafico.getData().size() > 0) {
+                                                                resultTable.getItems().remove(0, resultTable.getItems().size());
+                                                            }
+                                                            host.connect(parameters);
+                                                            Occurrence tmp2 = saveOccurrence(receiveParameters.getData().getDataEventList().size());
+                                                            if (tmp2.getType().compareTo("ERRO") == 0) {
+                                                                break;
+                                                            }
 
-                            saveOccurrence(receiveParameters.getData().getDataEventList().size());
-                            OccurrenceDAO dao = new OccurrenceDAO();
-                            displayOccurrence(dao.findOccurrenceEntities());
-                        }
+                                                        }
+
+                                                        return null;
+                                                    }
+
+                                                    @Override
+                                                    protected void succeeded() {
+
+                                                        String msg = "Envio de dados finalizado.";
+                                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                                        executionLabel.setText(msg);
+
+                                                        receiveParameters = host.getReceiveParametersData();
+                                                        if (receiveParameters != null) {
+                                                            resultTable.setItems(FXCollections.observableArrayList(receiveParameters.getData().getDataEventList()));
+
+                                                            msg = "Eventos atualizados na tela de configuração.";
+                                                            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                                            executionLabel.setText(msg);
+
+                                                            receiveValues = host.getReceiveValues();
+                                                            grafico.getData().clear();
+                                                            plotGraph();
+                                                            grafico.setCreateSymbols(false);
+                                                            msg = "Gráfico plotado na tela de configuração.";
+                                                            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                                            executionLabel.setText(msg);
+
+                                                            List<Occurrence> list = new ArrayList<>();
+                                                            try {
+                                                                Occurrence tmp2 = saveOccurrence(receiveParameters.getData().getDataEventList().size());
+                                                                tmp2.setDevice(device);
+                                                                OccurrenceDAO Odao = new OccurrenceDAO();
+
+                                                                tmp2.setDevice(device);
+                                                                Odao.create(tmp2);
+                                                                device.getOccurrenceList().add(tmp2);
+                                                                msg = "Ocorrência registrada...";
+                                                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                                                list.add(tmp);
+
+                                                            } catch (Exception ex) {
+                                                                Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                                                            }
+                                                            displayOccurrence(list);
+
+                                                        }
+                                                    }
+                                                };
+                                            }
+                                        };
+                                        worker.start();
+                                    } else {
+                                        tmp.setDevice(device);
+                                        OccurrenceDAO Odao = new OccurrenceDAO();
+
+                                        tmp.setDevice(device);
+                                        Odao.create(tmp);
+                                        device.getOccurrenceList().add(tmp);
+                                        msg = "Ocorrência registrada...";
+                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                        resultTable.setItems(FXCollections.observableArrayList(receiveParameters.getData().getDataEventList()));
+
+                                        msg = "Eventos atualizados na tela de configuração.";
+                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                        executionLabel.setText(msg);
+
+                                        receiveValues = host.getReceiveValues();
+                                        grafico.getData().clear();
+                                        plotGraph();
+                                        grafico.setCreateSymbols(false);
+                                        msg = "Gráfico plotado. Iteração " + count;
+                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                        executionLabel.setText(msg);
+                                        list.add(tmp);
+                                        displayOccurrence(list);
+                                    }
+
+                                }
+                            }
+
+                        };
                     }
 
                 };
-
-                this.tr = new Thread(execute);
-                this.tr.start();
+                service.start();
 
             } else {
                 AlertDialog.SaveParameters();
@@ -264,15 +361,28 @@ public class MonitorWindowController extends ControllerExec {
 
     @FXML
     private void onHandleChangeToConfiguration() {
-        MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
+
+        if (user.getisAdmin() == 1) {
+            ConfigurationWindowController controller
+                    = (ConfigurationWindowController) MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
+
+            controller.setUser(user);
+//                    MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
+            String msg = "ConfigurationWindow inicializada...";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+        } else {
+            AlertDialog.isNotAdmin();
+        }
     }
 
     @Override
-    public void handleSave(ActionEvent event) {
+    public void handleSave(ActionEvent event
+    ) {
     }
 
     @Override
-    public void prepareForm(Mode mode) {
+    public void prepareForm(Mode mode
+    ) {
         switch (mode) {
             case VIEW:
                 measureRangeField.setDisable(true);
@@ -290,45 +400,66 @@ public class MonitorWindowController extends ControllerExec {
                 buttonStop.setDisable(true);
                 buttonExport.setDisable(true);
                 break;
+            case EDIT:
+                measureRangeField.setDisable(false);
+                pulseWidthField.setDisable(false);
+                measureTimeField.setDisable(false);
+                waveLengthField.setDisable(false);
+                measureModeField.setDisable(false);
+                refractiveIndexField.setDisable(false);
+                nonReflactionThresholdField.setDisable(false);
+                endThresholdField.setDisable(false);
+                reflectionThresholdField.setDisable(false);
+                buttonSave.setDisable(false);
+                buttonEdit.setDisable(false);
+                cycleTimeField.setDisable(false);
+                buttonStop.setDisable(false);
+                buttonExport.setDisable(false);
+                break;
         }
 
     }
 
     @Override
-    public void prepareMenu(Mode mode) {
-//        switch (mode) {
-//            case VIEW:
-//                MainApp.getInstance().disable(Menu.Print, true);
-//                MainApp.getInstance().disable(Menu.ExportEL, true);
-//                MainApp.getInstance().disable(Menu.ExportLR, true);
-//                MainApp.getInstance().disable(Menu.ExportOL, true);
-//                MainApp.getInstance().disable(Menu.Print, true);
-//                break;
-//            case EDIT:
-//                MainApp.getInstance().disable(Menu.Print, false);
-//                MainApp.getInstance().disable(Menu.ExportEL, false);
-//                MainApp.getInstance().disable(Menu.ExportLR, false);
-//                MainApp.getInstance().disable(Menu.ExportOL, false);
-//                MainApp.getInstance().disable(Menu.Print, false);
-//                break;
-//
-//            default:
-//                throw new AssertionError(mode.name());
-//
-//        }
+    public void prepareMenu(Mode mode
+    ) {
+        switch (mode) {
+            case VIEW:
+                MainApp.getInstance().disable(Menu.Print, true);
+                MainApp.getInstance().disable(Menu.ExportEL, true);
+                MainApp.getInstance().disable(Menu.ExportLR, true);
+                MainApp.getInstance().disable(Menu.ExportOL, true);
+                MainApp.getInstance().disable(Menu.Print, true);
+                break;
+            case EDIT:
+                MainApp.getInstance().disable(Menu.Print, false);
+                MainApp.getInstance().disable(Menu.ExportEL, false);
+                MainApp.getInstance().disable(Menu.ExportLR, false);
+                MainApp.getInstance().disable(Menu.ExportOL, false);
+                MainApp.getInstance().disable(Menu.Print, false);
+                break;
+
+            default:
+                throw new AssertionError(mode.name());
+
+        }
     }
 
     @FXML
     private void onHandleStop(ActionEvent event) {
         buttonStop.setDisable(true);
-        this.tr.interrupt();
+        this.service.cancel();
+        if (this.worker != null) {
+            this.worker.cancel();
+        }
     }
 
-    void setReference(Device reference) {
+    void setReference(Device reference, User user) {
 
         this.parameters = reference.getParameter();
         this.device = reference;
         this.limits = reference.getLimit();
+        this.user = user;
 
         this.measureRangeField.setValue(parameters.getMeasuringRangeOfTest());
         this.pulseWidthField.setValue(parameters.getTestPulseWidth());
@@ -356,7 +487,7 @@ public class MonitorWindowController extends ControllerExec {
                 occurrenceList.add(result);
             });
             occurrenceTable.setItems(occurrenceList);
-            idColumm.setCellValueFactory(cellData -> cellData.getValue().occurrenceIdProperty());
+//            idColumm.setCellValueFactory(cellData -> cellData.getValue().occurrenceIdProperty());
             occurrenceColumm.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
             descriptionColumm.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
             dateColumm.setCellValueFactory(cellData -> cellData.getValue().createTimeProperty());
@@ -365,7 +496,7 @@ public class MonitorWindowController extends ControllerExec {
 
     }
 
-    public void saveOccurrence(int eventSize) throws Exception {
+    public Occurrence saveOccurrence(int eventSize) throws Exception {
 
         Occurrence occurr = new Occurrence();
         LocalDateTime timePoint = LocalDateTime.now();
@@ -384,40 +515,62 @@ public class MonitorWindowController extends ControllerExec {
         DataEventDAO eventDAO = new DataEventDAO();
         List<DataEvent> eventsReference = eventDAO.findDataEventEntities();
 
+        Collections.sort(eventsReference, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                DataEvent p1 = (DataEvent) o1;
+                DataEvent p2 = (DataEvent) o2;
+                return p1.getDistance() < p2.getDistance() ? -1 : (p1.getDistance() > p2.getDistance() ? +1 : 0);
+            }
+        });
+        for (int i = 0; i < eventsReference.size(); i++) {
+            DataEvent dataEvent = eventsReference.get(i);
+            System.out.println("distanceReference" + i + " = " + dataEvent.getDistance());
+            System.out.println("AttenuationReference" + i + " = " + dataEvent.getAverageAttenuationCoefficient());
+
+        }
+
         Data dataNow = receiveParameters.getData();
         Limit limitNow = limits;
         ArrayList<DataEvent> eventsNow = (ArrayList<DataEvent>) receiveParameters.getData().getDataEventList();
         Device deviceNow = device;
 
-        float a3 = eventsReference.get(eventsNow.size() - 1).getDistance();
+        for (int i = 0; i < eventsNow.size(); i++) {
+            DataEvent dataEvent = eventsNow.get(i);
+            System.out.println("distanceNow" + i + " = " + dataEvent.getDistance());
+            System.out.println("AttenuationNow" + i + " = " + dataEvent.getAverageAttenuationCoefficient());
+
+        }
+
+        float a3 = eventsReference.get(eventsReference.size() - 1).getDistance();
         float tmp = a3 * (limitReference.getDistanceGreen() / 100.0f);
 
         float a3_i = a3 - tmp;
         float a3_s = a3 + tmp;
         a3 = eventsNow.get(eventsNow.size() - 1).getDistance();
 
+        System.out.println("distanceNow = " + a3);
+        System.out.println("distanceReferenceInicio = " + a3_i);
+        System.out.println("distanceReferenceFim = " + a3_s);
         occurr.setType("OK");
         occurr.setDescription("Nenhum erro foi encontrado!");
         occurr.setCreateTime(new Date());
 
-        if (eventSize != deviceReference.getData().getDataEventList().size()) {
+//        if (eventSize != eventsReference.size()) {
+        if (a3 < a3_i) {
             occurr.setType("ERRO");
-            occurr.setDescription("Erro! Número de enventos diferente da referência!");
+            occurr.setDescription("Erro! Rompimento detectado! Distância = " + a3);
             occurr.setCreateTime(new Date());
-
-        } else if (a3 < a3_i) {
+        } else if (a3 > a3_s) {
             occurr.setType("ERRO");
-            occurr.setDescription("Erro! Rompimento na distância " + a3 + " metros de cabo optico.");
+            occurr.setDescription("Erro! Distância maior que a referência.");
             occurr.setCreateTime(new Date());
-
         } else {
 
             for (int i = 0; i < eventsReference.size(); i++) {
                 float temp = eventsReference.get(i).getInsertionLoss();
                 temp = Math.abs(temp) * (limits.getInsertionYellow() / 100.0f);
                 float nb = Math.abs(eventsNow.get(i).getInsertionLoss()) - Math.abs(eventsReference.get(i).getInsertionLoss());
-//                System.out.println(temp);
-//                System.out.println(nb);
+
                 if (nb > 0 && nb > temp) {
                     occurr.setType("ATENÇÃO");
                     occurr.setDescription("Info! No evento " + (i + 1) + " Insertion loss aumentou a perda em " + (nb - temp) + " db.");
@@ -438,9 +591,8 @@ public class MonitorWindowController extends ControllerExec {
                 }
                 temp = eventsReference.get(i).getAcumulativeLoss();
                 temp = Math.abs(temp) * (limits.getAcumulationYellow() / 100.0f);
-//                System.out.println(temp);
+
                 float nd = Math.abs(eventsNow.get(i).getAcumulativeLoss()) - Math.abs(eventsReference.get(i).getAcumulativeLoss());
-//                System.out.println(nd);
 
                 if (nd > 0 && nd > temp) {
                     occurr.setType("ATENÇÃO");
@@ -451,8 +603,7 @@ public class MonitorWindowController extends ControllerExec {
                 temp = eventsReference.get(i).getAverageAttenuationCoefficient();
                 temp = Math.abs(temp) * (limits.getAttenuationYellow() / 100.0f);
                 float ne = Math.abs(eventsNow.get(i).getAverageAttenuationCoefficient()) - Math.abs(eventsReference.get(i).getAverageAttenuationCoefficient());
-//                System.out.println(temp);
-//                System.out.println(ne);
+
                 if (ne > temp) {
                     occurr.setType("ATENÇÃO");
                     occurr.setDescription("Info! No evento " + (i + 1) + " Attenuation Coefficient aumentou o coeficiente de atenuação em " + (ne - temp) + " db.");
@@ -462,13 +613,6 @@ public class MonitorWindowController extends ControllerExec {
             }
         }
 
-        occurr.setDevice(device);
-        OccurrenceDAO dao = new OccurrenceDAO();
-
-        occurr.setDevice(device);
-        dao.create(occurr);
-        device.getOccurrenceList().add(occurr);
-        String msg = "Ocorrência registrada...";
-        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+        return occurr;
     }
 }
