@@ -207,5 +207,13 @@ public class DeviceComunicator {
             ti = System.currentTimeMillis();
         }
     }
+    public void closeSocket()
+    {
+        try {
+            this.client.close();
+        } catch (IOException ex) {
+            Logger.getLogger(DeviceComunicator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
 }
