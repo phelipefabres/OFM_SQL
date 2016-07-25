@@ -207,12 +207,14 @@ public class DeviceComunicator {
             ti = System.currentTimeMillis();
         }
     }
-    public void closeSocket()
+    public void closeSocket() throws Exception
     {
         try {
             this.client.close();
+            String msg = "Connection terminated with OTDR.";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
         } catch (IOException ex) {
-            Logger.getLogger(DeviceComunicator.class.getName()).log(Level.SEVERE, null, ex);
+           throw new Exception("Socket could not terminated the host connection!" + this.ip + ".", ex);
         }
     }
 

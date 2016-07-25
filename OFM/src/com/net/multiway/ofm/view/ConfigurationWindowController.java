@@ -432,7 +432,11 @@ public class ConfigurationWindowController extends ControllerExec {
                                     msg = "Gráfico plotado na tela de configuração.";
                                     Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                                     executionLabel.setText(msg);
-
+                                    try {
+                                        host.closeSocket();
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                     buttonExport.setDisable(false);
                                     buttonReference.setDisable(false);
                                     buttonExecute.setDisable(false);

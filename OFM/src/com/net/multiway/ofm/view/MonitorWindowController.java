@@ -336,8 +336,9 @@ public class MonitorWindowController extends ControllerExec {
                                         list.add(tmp);
                                         displayOccurrence(list);
                                     }
-
+                                    
                                 }
+                                host.closeSocket();
                             }
 
                         };
