@@ -104,28 +104,37 @@ public class DeviceComunicator {
             byte[] DataLen = new byte[4];
             this.in.read(CMcode);
             this.in.read(DataLen);
-
+            String msg = "Recebendo Pacote...";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
             // codigo de resposta padao
             if (Utils.byte4ToInt(CMcode) == 0xA0000000) {
                 receiveStatusData = new ReceiveStatus(this.in, Utils.byte4ToInt(DataLen));
                 receiveStatusData.parser();
+                msg = "Package, code = " + Utils.byte4ToInt(CMcode) + " .";
+                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 return true;
             } else if (Utils.byte4ToInt(CMcode) == 0x90000001) {
                 receiveValues.setInputStream(this.in);
                 receiveValues.parser();
+                msg = "Package, code = " + Utils.byte4ToInt(CMcode) + " .";
+                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 return true;
             } else if (Utils.byte4ToInt(CMcode) == 0x90000000) {
                 receiveParametersData = new ReceiveParameters(this.in);
                 receiveParametersData.parser();
+                msg = "Package, code = " + Utils.byte4ToInt(CMcode) + " .";
+                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 return false;
             } else {
-
+                msg = "ERRO ao receber pacote com code = " + Utils.byte4ToInt(CMcode) + " .";
+                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 return false;
             }
+          
         } catch (Exception ex) {
             throw new Exception("Error while reading package.", ex);
         }
-
+        
     }
 
     public void connect(Parameter data) throws Exception {
@@ -141,8 +150,13 @@ public class DeviceComunicator {
                 i++;
 
                 flag = receivePackage();
+                msg = "Frame Received" + i + ".";
+                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
                 sendPackage();
+                msg = "Package Send" + i + ".";
+                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+
             }
         } catch (Exception ex) {
             Logger.getLogger(DeviceComunicator.class.getName()).log(Level.SEVERE, null, ex);
@@ -207,14 +221,17 @@ public class DeviceComunicator {
             ti = System.currentTimeMillis();
         }
     }
-    public void closeSocket() throws Exception
-    {
+
+    public void closeConnection() throws Exception {
         try {
+            this.out.flush();
+            this.out.close();
+            this.in.close();
             this.client.close();
             String msg = "Connection terminated with OTDR.";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
         } catch (IOException ex) {
-           throw new Exception("Socket could not terminated the host connection!" + this.ip + ".", ex);
+            throw new Exception("Socket could not terminated the host connection!" + this.ip + ".", ex);
         }
     }
 

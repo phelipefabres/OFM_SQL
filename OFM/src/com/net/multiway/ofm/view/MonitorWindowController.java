@@ -338,7 +338,7 @@ public class MonitorWindowController extends ControllerExec {
                                     }
                                     
                                 }
-                                host.closeSocket();
+                                host.closeConnection();
                             }
 
                         };

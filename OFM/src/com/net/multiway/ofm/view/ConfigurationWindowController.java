@@ -433,7 +433,7 @@ public class ConfigurationWindowController extends ControllerExec {
                                     Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                                     executionLabel.setText(msg);
                                     try {
-                                        host.closeSocket();
+                                        host.closeConnection();
                                     } catch (Exception ex) {
                                         Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
                                     }
@@ -442,7 +442,15 @@ public class ConfigurationWindowController extends ControllerExec {
                                     buttonExecute.setDisable(false);
                                     buttonMonitor.setDisable(false);
                                     executionLabel.setVisible(false);
+                                } else {
+                                    System.out.println("Deu erro!");
+                                    buttonExport.setDisable(false);
+                                    buttonReference.setDisable(false);
+                                    buttonExecute.setDisable(false);
+                                    buttonMonitor.setDisable(false);
+                                    executionLabel.setVisible(false);
                                 }
+
                             }
 
                         };
