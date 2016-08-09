@@ -145,8 +145,10 @@ public class ConfigurationWindowController extends ControllerExec {
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, "Devices carregados na tela...");
             parameters = device.getParameter();
             limits = device.getLimit();
+           
         } else {
             device = null;
+//            host = null;
         }
 
         if (parameters == null) {
@@ -226,6 +228,14 @@ public class ConfigurationWindowController extends ControllerExec {
 
             }
 
+//            if (host != null) {
+//                try {
+//                    host.closeConnection();
+//                } catch (Exception ex) {
+//                    Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+
         } else {
             String msg = "Nenhum device selecionado para deletar.";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
@@ -273,6 +283,12 @@ public class ConfigurationWindowController extends ControllerExec {
                     devicesData.add(device);
                     devicesList.setItems(devicesData);
                     this.device = device;
+//                    this.host = new DeviceComunicator(device.getIp().trim(), 5000);
+//                    try {
+//                        host.initialize();
+//                    } catch (Exception ex) {
+//                        Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
@@ -367,9 +383,15 @@ public class ConfigurationWindowController extends ControllerExec {
     @FXML
     private void onHandleExecute() {
 
-        DeviceComunicator host;
         if (device != null) {
-            host = new DeviceComunicator(device.getIp().trim(), 5000);
+           
+                host = new DeviceComunicator(device.getIp().trim(), 5000);
+            try {
+                host.initialize();
+            } catch (Exception ex) {
+                Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
 
             if (buttonSave.isDisable()) {
                 executionLabel.setVisible(true);
@@ -432,11 +454,11 @@ public class ConfigurationWindowController extends ControllerExec {
                                     msg = "Gráfico plotado na tela de configuração.";
                                     Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                                     executionLabel.setText(msg);
-                                    try {
-                                        host.closeConnection();
-                                    } catch (Exception ex) {
-                                        Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
+//                                    try {
+//                                        host.closeConnection();
+//                                    } catch (Exception ex) {
+//                                        Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+//                                    }
                                     buttonExport.setDisable(false);
                                     buttonReference.setDisable(false);
                                     buttonExecute.setDisable(false);

@@ -92,10 +92,14 @@ public class DeviceComunicator {
     private boolean receivePackage() throws Exception {
 
         try {
+            String msg = "ignorando bytes inuteis...";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
             // ignorando bytes inuteis
             byte[] b = new byte[60];
             this.in.read(b);
 
+            msg = "ignorando cabecario...";
+            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
             // ignorando cabecario
             b = new byte[44];
             this.in.read(b);
@@ -104,9 +108,12 @@ public class DeviceComunicator {
             byte[] DataLen = new byte[4];
             this.in.read(CMcode);
             this.in.read(DataLen);
-            String msg = "Recebendo Pacote...";
+            msg = "Recebendo Pacote...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+
             // codigo de resposta padao
+            System.out.println("Bytes sobrando = " + this.in.available());
+
             if (Utils.byte4ToInt(CMcode) == 0xA0000000) {
                 receiveStatusData = new ReceiveStatus(this.in, Utils.byte4ToInt(DataLen));
                 receiveStatusData.parser();
@@ -130,16 +137,16 @@ public class DeviceComunicator {
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 return false;
             }
-          
+
         } catch (Exception ex) {
             throw new Exception("Error while reading package.", ex);
         }
-        
+
     }
 
     public void connect(Parameter data) throws Exception {
 
-        this.initialize();
+//        this.initialize();
         try {
             sendPackage(data);
             boolean flag = true;

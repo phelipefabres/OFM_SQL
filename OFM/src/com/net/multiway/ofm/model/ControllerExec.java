@@ -46,6 +46,7 @@ public abstract class ControllerExec implements Initializable, IController {
     protected ReceiveParameters receiveParameters;
     protected ReceiveValues receiveValues;
     protected EntityManagerFactory emf;
+    protected DeviceComunicator host;
 
     // Gráfico
     @FXML

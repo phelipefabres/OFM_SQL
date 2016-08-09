@@ -9,7 +9,6 @@ import com.net.multiway.ofm.MainApp;
 import com.net.multiway.ofm.daos.DataEventDAO;
 import com.net.multiway.ofm.daos.DeviceDAO;
 import com.net.multiway.ofm.daos.OccurrenceDAO;
-import com.net.multiway.ofm.daos.UserDAO;
 import com.net.multiway.ofm.entities.Data;
 import com.net.multiway.ofm.entities.DataEvent;
 import com.net.multiway.ofm.entities.Device;
@@ -148,6 +147,12 @@ public class MonitorWindowController extends ControllerExec {
         this.worker = null;
         prepareForm(Mode.VIEW);
         // prepareMenu(Mode.VIEW);
+        host = new DeviceComunicator(device.getIp().trim(), 5000);
+        try {
+            host.initialize();
+        } catch (Exception ex) {
+            Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @FXML
@@ -162,9 +167,9 @@ public class MonitorWindowController extends ControllerExec {
 
     @FXML
     private void onHandleExecute() {
-        DeviceComunicator host;
+//        DeviceComunicator host;
         if (device != null) {
-            host = new DeviceComunicator(device.getIp().trim(), 5000);
+//            host = new DeviceComunicator(device.getIp().trim(), 5000);
 
             if (buttonSave.isDisable()) {
                 executionLabel.setVisible(true);
@@ -336,9 +341,9 @@ public class MonitorWindowController extends ControllerExec {
                                         list.add(tmp);
                                         displayOccurrence(list);
                                     }
-                                    
+
                                 }
-                                host.closeConnection();
+//                                host.closeConnection();
                             }
 
                         };
@@ -369,6 +374,13 @@ public class MonitorWindowController extends ControllerExec {
 
             controller.setUser(user);
 //                    MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
+            if (host != null) {
+                try {
+                    host.closeConnection();
+                } catch (Exception ex) {
+                    Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
             String msg = "ConfigurationWindow inicializada...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
         } else {
