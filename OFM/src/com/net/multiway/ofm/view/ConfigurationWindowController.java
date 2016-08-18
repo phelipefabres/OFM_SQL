@@ -381,7 +381,7 @@ public class ConfigurationWindowController extends ControllerExec {
     }
 
     @FXML
-    private void onHandleExecute() {
+    private void onHandleExecute() throws IOException {
 
         if (device != null) {
            

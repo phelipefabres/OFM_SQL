@@ -20,6 +20,7 @@ import com.net.multiway.ofm.model.ControllerExec;
 import com.net.multiway.ofm.model.DeviceComunicator;
 import com.net.multiway.ofm.model.Mode;
 import com.net.multiway.ofm.model.View;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -147,12 +148,7 @@ public class MonitorWindowController extends ControllerExec {
         this.worker = null;
         prepareForm(Mode.VIEW);
         // prepareMenu(Mode.VIEW);
-        host = new DeviceComunicator(device.getIp().trim(), 5000);
-        try {
-            host.initialize();
-        } catch (Exception ex) {
-            Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
     }
 
     @FXML
@@ -166,11 +162,17 @@ public class MonitorWindowController extends ControllerExec {
     }
 
     @FXML
-    private void onHandleExecute() {
+    private void onHandleExecute() throws IOException {
 //        DeviceComunicator host;
         if (device != null) {
-//            host = new DeviceComunicator(device.getIp().trim(), 5000);
-
+            if (host == null) {
+                host = new DeviceComunicator(device.getIp().trim(), 5000);
+                try {
+                    host.initialize();
+                } catch (Exception ex) {
+                    Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
             if (buttonSave.isDisable()) {
                 executionLabel.setVisible(true);
                 String msg = "Recebendo Dados do OTDR...";
@@ -490,6 +492,7 @@ public class MonitorWindowController extends ControllerExec {
         gatewayLabel.setText(device.getGateway());
         String msg = "Referência lida...";
         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+        host = null; //new DeviceComunicator(device.getIp().trim(), 5000);
 
     }
 

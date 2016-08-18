@@ -33,9 +33,13 @@ public class DeviceComunicator {
     private ReceiveValues receiveValues;
     private ReceiveParameters receiveParametersData;
 
-    public DeviceComunicator(String i, int d) {
+    public DeviceComunicator(String i, int d) throws IOException {
         this.door = d;
         this.ip = i;
+        this.client = new Socket();
+        this.client.connect(new InetSocketAddress(this.ip, this.door), 2000);
+        this.in = new DataInputStream(client.getInputStream());
+        this.out = new DataOutputStream(client.getOutputStream());
 
         receiveValues = new ReceiveValues(this.in);
     }
@@ -58,12 +62,9 @@ public class DeviceComunicator {
 
     public void initialize() throws Exception {
         try {
-            this.client = new Socket();
-            this.client.connect(new InetSocketAddress(this.ip, this.door), 2000);
+            //this.client = new Socket();
             String msg = "Connected to OTDR.";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-            this.in = new DataInputStream(client.getInputStream());
-            this.out = new DataOutputStream(client.getOutputStream());
         } catch (Exception ex) {
             throw new Exception("Socket could not connect to the host " + this.ip + ".", ex);
         }
@@ -168,9 +169,10 @@ public class DeviceComunicator {
         } catch (Exception ex) {
             Logger.getLogger(DeviceComunicator.class.getName()).log(Level.SEVERE, null, ex);
             throw ex;
-        } finally {
-            this.client.close();
         }
+//        finally {
+//            this.client.close();
+//        }
 
     }
 
