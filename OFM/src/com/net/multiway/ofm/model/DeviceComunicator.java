@@ -64,6 +64,7 @@ public class DeviceComunicator {
         try {
             //this.client = new Socket();
             String msg = "Connected to OTDR.";
+            
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
         } catch (Exception ex) {
             throw new Exception("Socket could not connect to the host " + this.ip + ".", ex);
@@ -93,6 +94,7 @@ public class DeviceComunicator {
     private boolean receivePackage() throws Exception {
 
         try {
+            this.client.setSoTimeout(30000);
             String msg = "ignorando bytes inuteis...";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
             // ignorando bytes inuteis
