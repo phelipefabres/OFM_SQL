@@ -32,6 +32,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  *
@@ -196,6 +198,7 @@ public class Occurrence implements Externalizable {
 
     @JoinColumn(name = "device_id", referencedColumnName = "device_id", nullable = false)
     @ManyToOne(optional = false)
+    @NotFound(action=NotFoundAction.IGNORE)
     public Device getDevice() {
         if (device == null) {
             return _device;

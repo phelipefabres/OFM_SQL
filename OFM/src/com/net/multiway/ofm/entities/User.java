@@ -11,10 +11,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Date;
 import java.util.List;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -36,6 +34,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  *
@@ -57,7 +57,6 @@ import javax.persistence.UniqueConstraint;
 public class User implements Externalizable {
 
     private static final long serialVersionUID = 1L;
-
 
     public User() {
         this.username = new SimpleStringProperty();
@@ -120,10 +119,10 @@ public class User implements Externalizable {
         }
         return userId;
     }
-    
+
     private ObjectProperty<Integer> isAdmin;
     private Integer _isAdmin;
-    
+
     @Basic(optional = false)
     @Column(name = "is_admin", nullable = false)
     public Integer getisAdmin() {
@@ -294,6 +293,7 @@ public class User implements Externalizable {
     private List<Data> _dataList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @NotFound(action = NotFoundAction.IGNORE)
     public List<Data> getDataList() {
         if (dataList == null) {
             return _dataList;
@@ -321,6 +321,7 @@ public class User implements Externalizable {
     private List<Parameter> _parameterList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @NotFound(action = NotFoundAction.IGNORE)
     public List<Parameter> getParameterList() {
         if (parameterList == null) {
             return _parameterList;
@@ -348,6 +349,7 @@ public class User implements Externalizable {
     private List<Limit> _limitList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @NotFound(action = NotFoundAction.IGNORE)
     public List<Limit> getLimitList() {
         if (limitList == null) {
             return _limitList;
@@ -375,6 +377,7 @@ public class User implements Externalizable {
     private List<Device> _deviceList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @NotFound(action = NotFoundAction.IGNORE)
     public List<Device> getDeviceList() {
         if (deviceList == null) {
             return _deviceList;

@@ -50,7 +50,6 @@ public class ReceiveValues extends Package {
             values[i] = Utils.byte2ToInt(b);
         }
 
-        //this.dataReceiveValues.add(values);
         this.lstValues.add(values);
         in.read(d);
     }

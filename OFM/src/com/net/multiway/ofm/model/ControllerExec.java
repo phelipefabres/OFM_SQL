@@ -48,38 +48,14 @@ public abstract class ControllerExec implements Initializable, IController {
     protected EntityManagerFactory emf;
     protected DeviceComunicator host;
 
-    // Gráfico
-    @FXML
-    protected LineChart<NumberAxis, NumberAxis> grafico;
-    @FXML
-    protected NumberAxis xAxis;
-    @FXML
-    protected NumberAxis yAxis;
-
-    //result
-    @FXML
-    protected TableView<DataEvent> resultTable;
-    
-    @FXML
-    protected TableColumn<DataEvent, String> typeColumn;
-    @FXML
-    protected TableColumn<DataEvent, Float> distanceColumn;
-    @FXML
-    protected TableColumn<DataEvent, Float> insertLossColumn;
-    @FXML
-    protected TableColumn<DataEvent, Float> reflectLossColumn;
-    @FXML
-    protected TableColumn<DataEvent, Float> accumulationColumn;
-    @FXML
-    protected TableColumn<DataEvent, Float> attenuationCoefficientColumn;
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        mappingParametersTable();
+
         emf = Persistence.createEntityManagerFactory("ofmPU");
     }
 
-    protected void plotGraph() {
+    protected void plotGraph(LineChart<NumberAxis, NumberAxis> grafico, ReceiveParameters receiveParameters) {
+        grafico.getData().clear();
 
         ObservableList<XYChart.Data<Float, Float>> dataset = FXCollections.observableArrayList();
         int i = 0;
@@ -122,8 +98,7 @@ public abstract class ControllerExec implements Initializable, IController {
                 k++;
             }
 
-
-            XYChart.Data<Float, Float> coordData = new XYChart.Data<>(Math.abs(dx), Math.abs((float) c / 1000)*0.725190f);
+            XYChart.Data<Float, Float> coordData = new XYChart.Data<>(Math.abs(dx), Math.abs((float) c / 1000) * 0.725190f);
 
             dataset.add(coordData);
 
@@ -134,11 +109,11 @@ public abstract class ControllerExec implements Initializable, IController {
             }
         }
 
-        grafico.getData().add(new XYChart.Series("Gráfico", FXCollections.observableArrayList(dataset)));
-
+        grafico.getData().add(new XYChart.Series("Gráfico", dataset));
+        System.gc();
     }
 
-    protected void exportData() {
+    protected void exportData(ReceiveParameters receiveParameters, ReceiveValues receiveValues) {
         if ((receiveParameters == null) || (receiveValues == null)) {
             String msg = "Não há dados a serem exportados.";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
@@ -152,8 +127,7 @@ public abstract class ControllerExec implements Initializable, IController {
         }
     }
 
-    protected void mappingParametersTable() {
-//        numeroColumn.setCellValueFactory(cellData -> cellData.getValue().dataEventIdProperty());
+    protected void mappingParametersTable(TableColumn<DataEvent, String> typeColumn, TableColumn<DataEvent, Float> distanceColumn, TableColumn<DataEvent, Float> insertLossColumn, TableColumn<DataEvent, Float> reflectLossColumn, TableColumn<DataEvent, Float> accumulationColumn, TableColumn<DataEvent, Float> attenuationCoefficientColumn) {
         typeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         distanceColumn.setCellValueFactory(cellData -> cellData.getValue().distanceProperty());
         insertLossColumn.setCellValueFactory(cellData -> cellData.getValue().insertionLossProperty());

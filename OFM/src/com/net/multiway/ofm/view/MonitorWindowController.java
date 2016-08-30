@@ -32,6 +32,10 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -43,9 +47,12 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 
 /**
  * FXML Controller class
@@ -55,6 +62,7 @@ import javafx.scene.control.TextField;
 public class MonitorWindowController extends ControllerExec {
 
     private ObservableList<Occurrence> occurrenceList;
+    
     private Occurrence occurrence;
     //Thread de execução do monitor
     private Service service;
@@ -68,9 +76,8 @@ public class MonitorWindowController extends ControllerExec {
     @FXML
     private Label gatewayLabel;
 
-    // Gráfico
     @FXML
-    private LineChart<Double, Double> grafico;
+    protected LineChart<NumberAxis, NumberAxis> grafico;
     @FXML
     private NumberAxis xAxis;
     @FXML
@@ -98,57 +105,56 @@ public class MonitorWindowController extends ControllerExec {
     @FXML
     private TextField cycleTimeField;
 
-    //result
     @FXML
-    private TableView<DataEvent> resultTable;
+    protected TableView<DataEvent> resultTable;
+
     @FXML
-    private TableColumn<DataEvent, Long> numeroColumn;
+    protected TableColumn<DataEvent, String> typeColumn;
     @FXML
-    private TableColumn<DataEvent, Integer> typeColumn;
+    protected TableColumn<DataEvent, Float> distanceColumn;
     @FXML
-    private TableColumn<DataEvent, Integer> distanceColumn;
+    protected TableColumn<DataEvent, Float> insertLossColumn;
     @FXML
-    private TableColumn<DataEvent, Float> insertLossColumn;
+    protected TableColumn<DataEvent, Float> reflectLossColumn;
     @FXML
-    private TableColumn<DataEvent, Float> reflectLossColumn;
+    protected TableColumn<DataEvent, Float> accumulationColumn;
     @FXML
-    private TableColumn<DataEvent, Float> accumulationColumn;
-    @FXML
-    private TableColumn<DataEvent, Float> attenuationCoefficientColumn;
+    protected TableColumn<DataEvent, Float> attenuationCoefficientColumn;
     @FXML
     private Button buttonSave;
     @FXML
     private Button buttonEdit;
 
-    @FXML
-    private Button buttonExport;
+//    private Button buttonExport;
     @FXML
     private Button buttonStop;
     @FXML
     private Button buttonExecute;
     @FXML
     private Button buttonConfig;
-    @FXML
-    private Label executionLabel;
+
     @FXML
     private TableView<Occurrence> occurrenceTable;
-    @FXML
-    private TableColumn<Occurrence, Integer> idColumm;
     @FXML
     private TableColumn<Occurrence, String> occurrenceColumm;
     @FXML
     private TableColumn<Occurrence, String> descriptionColumm;
     @FXML
     private TableColumn<Occurrence, Date> dateColumm;
+    @FXML
+    private ProgressBar progressBar;
+
+    private IntegerProperty pb;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
+        mappingParametersTable(typeColumn, distanceColumn, insertLossColumn, reflectLossColumn, accumulationColumn, attenuationCoefficientColumn);
         occurrence = new Occurrence();
         this.worker = null;
         prepareForm(Mode.VIEW);
         // prepareMenu(Mode.VIEW);
-
+//        
     }
 
     @FXML
@@ -167,20 +173,11 @@ public class MonitorWindowController extends ControllerExec {
         if (device != null) {
             if (host == null) {
                 host = new DeviceComunicator(device.getIp().trim(), 5000);
-                try {
-                    host.initialize();
-                } catch (Exception ex) {
-                    Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
-                }
             }
             if (buttonSave.isDisable()) {
-                executionLabel.setVisible(true);
                 String msg = "Recebendo Dados do OTDR...";
-                executionLabel.setText(msg);
-
                 buttonExecute.setDisable(true);
                 buttonConfig.setDisable(true);
-                buttonExport.setDisable(true);
                 buttonStop.setDisable(false);
 
                 service = new Service() {
@@ -190,16 +187,20 @@ public class MonitorWindowController extends ControllerExec {
                             @Override
                             protected Object call() throws Exception {
                                 count = 0;
+                                //            pb.set(0);
                                 while (!buttonStop.isDisable()) {
-                                    if (resultTable.getItems().size() > 0 && grafico.getData().size() > 0) {
+                                    if (resultTable.getItems().size() > 0 && grafico.getData().size() > 0 && occurrenceTable.getItems().size() > 0) {
                                         resultTable.getItems().remove(0, resultTable.getItems().size());
+                                        occurrenceTable.getItems().remove(0, occurrenceTable.getItems().size());
+
                                     }
-                                    host.connect(parameters);
+                                    host.connect(parameters, pb);
                                     Platform.runLater(new Runnable() {
                                         @Override
                                         public void run() {
                                             try {
                                                 updateMessage(++count);
+
                                             } catch (Exception ex) {
                                                 Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
                                             }
@@ -216,7 +217,7 @@ public class MonitorWindowController extends ControllerExec {
 
                                 buttonExecute.setDisable(false);
                                 buttonConfig.setDisable(false);
-                                buttonExport.setDisable(false);
+//                                buttonExport.setDisable(false);
 
                                 return null;
                             }
@@ -235,90 +236,95 @@ public class MonitorWindowController extends ControllerExec {
                             private void updateMessage(int count) throws Exception {
                                 String msg = "Envio de dados finalizado.";
                                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                                executionLabel.setText(msg);
+//                                executionLabel.setText(msg);
 
                                 receiveParameters = host.getReceiveParametersData();
                                 if (receiveParameters != null) {
-                                    grafico.getData().clear();
-                                    plotGraph();
+
+                                    plotGraph(grafico, receiveParameters);
                                     grafico.setCreateSymbols(false);
+                                    grafico.setAnimated(false);
+                                    grafico.setLegendVisible(false);
 
-                                    List<Occurrence> list = new ArrayList<>();
-                                    Occurrence tmp = saveOccurrence(receiveParameters.getData().getDataEventList().size());
-                                    System.out.println(tmp.getType());
-
-                                    if (tmp.getType().compareTo("ERRO") == 0) {
-
-                                        worker = new Service() {
-                                            @Override
-                                            protected Task createTask() {
-                                                return new Task() {
-                                                    @Override
-                                                    protected Object call() throws Exception {
-
-                                                        for (int i = 0; i < 3; i++) {
-                                                            if (resultTable.getItems().size() > 0 && grafico.getData().size() > 0) {
-                                                                resultTable.getItems().remove(0, resultTable.getItems().size());
-                                                            }
-                                                            host.connect(parameters);
-                                                            Occurrence tmp2 = saveOccurrence(receiveParameters.getData().getDataEventList().size());
-                                                            if (tmp2.getType().compareTo("ERRO") == 0) {
-                                                                break;
-                                                            }
-
-                                                        }
-
-                                                        return null;
-                                                    }
-
-                                                    @Override
-                                                    protected void succeeded() {
-
-                                                        String msg = "Envio de dados finalizado.";
-                                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                                                        executionLabel.setText(msg);
-
-                                                        receiveParameters = host.getReceiveParametersData();
-                                                        if (receiveParameters != null) {
-                                                            resultTable.setItems(FXCollections.observableArrayList(receiveParameters.getData().getDataEventList()));
-
-                                                            msg = "Eventos atualizados na tela de configuração.";
-                                                            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                                                            executionLabel.setText(msg);
-
-                                                            receiveValues = host.getReceiveValues();
-                                                            grafico.getData().clear();
-                                                            plotGraph();
-                                                            grafico.setCreateSymbols(false);
-                                                            msg = "Gráfico plotado na tela de configuração.";
-                                                            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                                                            executionLabel.setText(msg);
-
-                                                            List<Occurrence> list = new ArrayList<>();
-                                                            try {
-                                                                Occurrence tmp2 = saveOccurrence(receiveParameters.getData().getDataEventList().size());
-                                                                tmp2.setDevice(device);
-                                                                OccurrenceDAO Odao = new OccurrenceDAO();
-
-                                                                tmp2.setDevice(device);
-                                                                Odao.create(tmp2);
-                                                                device.getOccurrenceList().add(tmp2);
-                                                                msg = "Ocorrência registrada...";
-                                                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                                                                list.add(tmp);
-
-                                                            } catch (Exception ex) {
-                                                                Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
-                                                            }
-                                                            displayOccurrence(list);
-
-                                                        }
-                                                    }
-                                                };
-                                            }
-                                        };
-                                        worker.start();
-                                    } else {
+                                    List<Occurrence> list = saveOccurrence(receiveParameters.getData().getDataEventList().size());
+                                    System.out.println(list.get(0).getType());
+                                    if (list.size() == 1) {
+                                        Occurrence tmp = list.get(0);
+//                                        if (tmp.getType().compareTo("ERRO") == 0) {
+//
+//                                            worker = new Service() {
+//                                                @Override
+//                                                protected Task createTask() {
+//                                                    return new Task() {
+//                                                        @Override
+//                                                        protected Object call() throws Exception {
+//
+//                                                            for (int i = 0; i < 3; i++) {
+//                                                                if (resultTable.getItems().size() > 0 && grafico.getData().size() > 0) {
+//                                                                    resultTable.getItems().remove(0, resultTable.getItems().size());
+//                                                                }
+//                                                                host.connect(parameters);
+//                                                                Occurrence tmp2 = saveOccurrence(receiveParameters.getData().getDataEventList().size());
+//                                                                if (tmp2.getType().compareTo("ERRO") == 0) {
+//                                                                    break;
+//                                                                }
+//
+//                                                            }
+//
+//                                                            return null;
+//                                                        }
+//
+//                                                        @Override
+//                                                        protected void succeeded() {
+//
+//                                                            String msg = "Envio de dados finalizado.";
+//                                                            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+////                                                        executionLabel.setText(msg);
+//
+//                                                            receiveParameters = host.getReceiveParametersData();
+//                                                            if (receiveParameters != null) {
+//                                                                resultTable.setItems(FXCollections.observableArrayList(receiveParameters.getData().getDataEventList()));
+//
+//                                                                msg = "Eventos atualizados na tela de configuração.";
+//                                                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+////                                                            executionLabel.setText(msg);
+//
+//                                                                receiveValues = host.getReceiveValues();
+////                                                            grafico.getData().clear();
+//                                                                plotGraph(grafico, receiveParameters);
+//                                                                grafico.setCreateSymbols(false);
+//                                                                grafico.setAnimated(false);
+//                                                                grafico.setLegendVisible(false);
+//
+//                                                                msg = "Gráfico plotado na tela de configuração.";
+//                                                                Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+////                                                            executionLabel.setText(msg);
+//
+//                                                                List<Occurrence> list = new ArrayList<>();
+//                                                                try {
+//                                                                    Occurrence tmp2 = saveOccurrence(receiveParameters.getData().getDataEventList().size());
+//                                                                    tmp2.setDevice(device);
+//                                                                    OccurrenceDAO Odao = new OccurrenceDAO();
+//
+//                                                                    tmp2.setDevice(device);
+//                                                                    Odao.create(tmp2);
+//                                                                    device.getOccurrenceList().add(tmp2);
+//                                                                    msg = "Ocorrência registrada...";
+//                                                                    Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+//                                                                    list.add(tmp);
+//
+//                                                                } catch (Exception ex) {
+//                                                                    Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
+//                                                                }
+//                                                                displayOccurrence(list);
+//
+//                                                            }
+//                                                        }
+//                                                    };
+//                                                }
+//                                            };
+//                                            worker.start();
+//                                        } else {
                                         tmp.setDevice(device);
                                         OccurrenceDAO Odao = new OccurrenceDAO();
 
@@ -331,22 +337,47 @@ public class MonitorWindowController extends ControllerExec {
 
                                         msg = "Eventos atualizados na tela de configuração.";
                                         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                                        executionLabel.setText(msg);
+//                                        executionLabel.setText(msg);
 
                                         receiveValues = host.getReceiveValues();
-                                        grafico.getData().clear();
-                                        plotGraph();
+//                                    grafico.getData().clear();
+                                        plotGraph(grafico, receiveParameters);
                                         grafico.setCreateSymbols(false);
                                         msg = "Gráfico plotado. Iteração " + count;
                                         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-                                        executionLabel.setText(msg);
-                                        list.add(tmp);
+//                                        executionLabel.setText(msg);
+                                        // list.add(tmp);
+                                        displayOccurrence(list);
+                                    } else {
+
+                                        OccurrenceDAO Odao = new OccurrenceDAO();
+                                        for (Occurrence tmp : list) {
+                                            tmp.setDevice(device);
+                                            Odao.create(tmp);
+                                            device.getOccurrenceList().add(tmp);
+                                        }
+                                        msg = "Ocorrência registrada...";
+                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+                                        resultTable.setItems(FXCollections.observableArrayList(receiveParameters.getData().getDataEventList()));
+
+                                        msg = "Eventos atualizados na tela de configuração.";
+                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+//                                        executionLabel.setText(msg);
+
+                                        receiveValues = host.getReceiveValues();
+//                                    grafico.getData().clear();
+                                        plotGraph(grafico, receiveParameters);
+                                        grafico.setCreateSymbols(false);
+                                        msg = "Gráfico plotado. Iteração " + count;
+                                        Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
+//                                        executionLabel.setText(msg);
+                                        // list.add(tmp);
                                         displayOccurrence(list);
                                     }
 
                                 }
-//                                host.closeConnection();
                             }
+//                            }
 
                         };
                     }
@@ -362,9 +393,8 @@ public class MonitorWindowController extends ControllerExec {
         }
     }
 
-    @FXML
     private void onHandleExport() {
-        exportData();
+        exportData(receiveParameters, receiveValues);
     }
 
     @FXML
@@ -413,7 +443,7 @@ public class MonitorWindowController extends ControllerExec {
                 buttonEdit.setDisable(true);
                 cycleTimeField.setDisable(true);
                 buttonStop.setDisable(true);
-                buttonExport.setDisable(true);
+//                buttonExport.setDisable(true);
                 break;
             case EDIT:
                 measureRangeField.setDisable(false);
@@ -429,7 +459,7 @@ public class MonitorWindowController extends ControllerExec {
                 buttonEdit.setDisable(false);
                 cycleTimeField.setDisable(false);
                 buttonStop.setDisable(false);
-                buttonExport.setDisable(false);
+//                buttonExport.setDisable(false);
                 break;
         }
 
@@ -498,23 +528,168 @@ public class MonitorWindowController extends ControllerExec {
 
     private void displayOccurrence(List<Occurrence> resultList) {
         if (resultList != null) {
+
+            occurrenceColumm.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
+            descriptionColumm.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
+            dateColumm.setCellValueFactory(cellData -> cellData.getValue().createTimeProperty());
+
+            occurrenceColumm.setCellFactory((TableColumn<Occurrence, String> column) -> {
+                return new TableCell<Occurrence, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty) {
+                            setText(null);
+                            setStyle("");
+                        } else {
+                            setText(item);
+                            if (item.compareTo("OK") == 0) {
+                                setTextFill(Color.BLACK);
+                                setStyle("-fx-background-color: green");
+                                descriptionColumm.setCellFactory((TableColumn<Occurrence, String> column) -> {
+                                    return new TableCell<Occurrence, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+
+                                            if (item == null || empty) {
+                                                setText(null);
+                                                setStyle("");
+                                            } else {
+                                                setText(item);
+                                                setTextFill(Color.BLACK);
+                                                setStyle("-fx-background-color: green");
+
+                                            }
+                                        }
+                                    };
+                                });
+
+                                dateColumm.setCellFactory((TableColumn<Occurrence, Date> column) -> {
+                                    return new TableCell<Occurrence, Date>() {
+                                        @Override
+                                        protected void updateItem(Date item, boolean empty) {
+                                            super.updateItem(item, empty);
+
+                                            if (item == null || empty) {
+                                                setText(null);
+                                                setStyle("");
+                                            } else {
+                                                setText(item.toString());
+                                                setTextFill(Color.BLACK);
+                                                setStyle("-fx-background-color: green");
+
+                                            }
+                                        }
+                                    };
+                                });
+
+                            } else if (item.compareTo("ATENÇÃO") == 0) {
+                                setTextFill(Color.BLACK);
+                                setStyle("-fx-background-color: yellow");
+                                descriptionColumm.setCellFactory((TableColumn<Occurrence, String> column) -> {
+                                    return new TableCell<Occurrence, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+
+                                            if (item == null || empty) {
+                                                setText(null);
+                                                setStyle("");
+                                            } else {
+                                                setText(item);
+                                                setTextFill(Color.BLACK);
+                                                setStyle("-fx-background-color: yellow");
+
+                                            }
+                                        }
+                                    };
+                                });
+
+                                dateColumm.setCellFactory((TableColumn<Occurrence, Date> column) -> {
+                                    return new TableCell<Occurrence, Date>() {
+                                        @Override
+                                        protected void updateItem(Date item, boolean empty) {
+                                            super.updateItem(item, empty);
+
+                                            if (item == null || empty) {
+                                                setText(null);
+                                                setStyle("");
+                                            } else {
+                                                setText(item.toString());
+                                                setTextFill(Color.BLACK);
+                                                setStyle("-fx-background-color: yellow");
+
+                                            }
+                                        }
+                                    };
+                                });
+                            } else if (item.compareTo("ERRO") == 0) {
+                                setTextFill(Color.WHITE);
+                                setStyle("-fx-background-color: red");
+                                descriptionColumm.setCellFactory((TableColumn<Occurrence, String> column) -> {
+                                    return new TableCell<Occurrence, String>() {
+                                        @Override
+                                        protected void updateItem(String item, boolean empty) {
+                                            super.updateItem(item, empty);
+
+                                            if (item == null || empty) {
+                                                setText(null);
+                                                setStyle("");
+                                            } else {
+                                                setText(item);
+                                                setTextFill(Color.WHITE);
+                                                setStyle("-fx-background-color: red");
+
+                                            }
+                                        }
+                                    };
+                                });
+
+                                dateColumm.setCellFactory((TableColumn<Occurrence, Date> column) -> {
+                                    return new TableCell<Occurrence, Date>() {
+                                        @Override
+                                        protected void updateItem(Date item, boolean empty) {
+                                            super.updateItem(item, empty);
+
+                                            if (item == null || empty) {
+                                                setText(null);
+                                                setStyle("");
+                                            } else {
+                                                setText(item.toString());
+                                                setTextFill(Color.WHITE);
+                                                setStyle("-fx-background-color: red");
+
+                                            }
+                                        }
+                                    };
+                                });
+                            } else {
+                                setTextFill(Color.BLACK);
+                                setStyle("");
+                            }
+                        }
+                    }
+                };
+            });
+
             occurrenceList = FXCollections.observableArrayList();
             resultList.stream().forEach((result) -> {
                 occurrenceList.add(result);
             });
             occurrenceTable.setItems(occurrenceList);
-//            idColumm.setCellValueFactory(cellData -> cellData.getValue().occurrenceIdProperty());
-            occurrenceColumm.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
-            descriptionColumm.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
-            dateColumm.setCellValueFactory(cellData -> cellData.getValue().createTimeProperty());
-
+        }
+        else{
+            AlertDialog.NothingToReference();
         }
 
     }
 
-    public Occurrence saveOccurrence(int eventSize) throws Exception {
+    public List<Occurrence> saveOccurrence(int eventSize) throws Exception {
 
         Occurrence occurr = new Occurrence();
+        List<Occurrence> occurrList = new ArrayList<>();
         LocalDateTime timePoint = LocalDateTime.now();
         DeviceDAO deviceDao = new DeviceDAO();
 
@@ -564,14 +739,10 @@ public class MonitorWindowController extends ControllerExec {
         float a3_s = a3 + tmp;
         a3 = eventsNow.get(eventsNow.size() - 1).getDistance();
 
-        System.out.println("distanceNow = " + a3);
-        System.out.println("distanceReferenceInicio = " + a3_i);
-        System.out.println("distanceReferenceFim = " + a3_s);
         occurr.setType("OK");
         occurr.setDescription("Nenhum erro foi encontrado!");
         occurr.setCreateTime(new Date());
 
-//        if (eventSize != eventsReference.size()) {
         if (a3 < a3_i) {
             occurr.setType("ERRO");
             occurr.setDescription("Erro! Rompimento detectado! Distância = " + a3);
@@ -591,7 +762,7 @@ public class MonitorWindowController extends ControllerExec {
                     occurr.setType("ATENÇÃO");
                     occurr.setDescription("Info! No evento " + (i + 1) + " Insertion loss aumentou a perda em " + (nb - temp) + " db.");
                     occurr.setCreateTime(new Date());
-                    break;
+                    occurrList.add(occurr);
                 }
                 temp = eventsReference.get(i).getEchoLoss();
                 System.out.println(temp);
@@ -603,7 +774,7 @@ public class MonitorWindowController extends ControllerExec {
                     occurr.setType("ATENÇÃO");
                     occurr.setDescription("Info! No evento " + (i + 1) + " Reflection loss aumentou a perda em " + (nc - temp) + " db.");
                     occurr.setCreateTime(new Date());
-                    break;
+                    occurrList.add(occurr);
                 }
                 temp = eventsReference.get(i).getAcumulativeLoss();
                 temp = Math.abs(temp) * (limits.getAcumulationYellow() / 100.0f);
@@ -614,7 +785,7 @@ public class MonitorWindowController extends ControllerExec {
                     occurr.setType("ATENÇÃO");
                     occurr.setDescription("Info! No evento " + (i + 1) + " Acumulative loss aumentou a perda em " + (nd - temp) + " db.");
                     occurr.setCreateTime(new Date());
-                    break;
+                    occurrList.add(occurr);
                 }
                 temp = eventsReference.get(i).getAverageAttenuationCoefficient();
                 temp = Math.abs(temp) * (limits.getAttenuationYellow() / 100.0f);
@@ -624,11 +795,16 @@ public class MonitorWindowController extends ControllerExec {
                     occurr.setType("ATENÇÃO");
                     occurr.setDescription("Info! No evento " + (i + 1) + " Attenuation Coefficient aumentou o coeficiente de atenuação em " + (ne - temp) + " db.");
                     occurr.setCreateTime(new Date());
-                    break;
+                    occurrList.add(occurr);
                 }
             }
+            if(occurr.getType().compareTo("OK") == 0)
+                occurrList.add(occurr);
+            return occurrList;
         }
 
-        return occurr;
+        occurrList.add(occurr);
+        System.out.println("Size = "+occurrList.size());
+        return occurrList;
     }
 }

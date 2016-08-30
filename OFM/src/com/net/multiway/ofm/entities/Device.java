@@ -11,16 +11,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Date;
 import java.util.List;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
@@ -40,6 +34,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  *
@@ -415,6 +411,7 @@ public class Device implements Externalizable {
     private List<Occurrence> occurrenceList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "device")
+    @NotFound(action = NotFoundAction.IGNORE)
     public List<Occurrence> getOccurrenceList() {
 
         return occurrenceList;
@@ -436,6 +433,7 @@ public class Device implements Externalizable {
 
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     @ManyToOne(optional = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     public User getUser() {
         if (user == null) {
             return _user;

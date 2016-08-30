@@ -9,11 +9,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -29,6 +25,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  *
@@ -61,7 +59,6 @@ public class DataGraphic implements Externalizable {
         this.point = new SimpleObjectProperty<>(point);
         this._point = point;
     }
-
 
     private ObjectProperty<Long> dataGraphicId;
     private Long _dataGraphicId;
@@ -116,7 +113,7 @@ public class DataGraphic implements Externalizable {
 
     public ObjectProperty<Integer> dataEventIdProperty() {
         if (point == null) {
-            point = new SimpleObjectProperty<>( _point);
+            point = new SimpleObjectProperty<>(_point);
         }
         return point;
     }
@@ -126,6 +123,7 @@ public class DataGraphic implements Externalizable {
 
     @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
     public Data getData() {
         if (data == null) {
             return _data;

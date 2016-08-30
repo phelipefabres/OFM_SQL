@@ -29,7 +29,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javax.persistence.Persistence;
 
 /**
  * FXML Controller class
@@ -98,7 +97,6 @@ public class LoginWindowController implements Initializable, IController {
                             = (ConfigurationWindowController) MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
 
                     controller.setUser(user);
-//                    MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
                     String msg = "ConfigurationWindow inicializada...";
                     Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 } else {

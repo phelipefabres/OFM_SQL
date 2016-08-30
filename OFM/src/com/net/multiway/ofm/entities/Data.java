@@ -40,6 +40,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  *
@@ -156,7 +158,6 @@ public class Data implements Externalizable {
         this._testWay = testWay;
         this._createTime = createTime;
     }
-
 
     private ObjectProperty<Integer> dataId;
     private Integer _dataId;
@@ -584,6 +585,7 @@ public class Data implements Externalizable {
     private List<DataEvent> dataEventList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "data")
+    @NotFound(action = NotFoundAction.IGNORE)
     public List<DataEvent> getDataEventList() {
 
         return dataEventList;
@@ -633,6 +635,7 @@ public class Data implements Externalizable {
 
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     @ManyToOne(optional = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     public User getUser() {
         if (user == null) {
             return _user;
@@ -659,6 +662,7 @@ public class Data implements Externalizable {
     private List<DataGraphic> dataGraphicList;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "data")
+    @NotFound(action = NotFoundAction.IGNORE)
     public List<DataGraphic> getDataGraphicList() {
 
         return dataGraphicList;
@@ -744,11 +748,11 @@ public class Data implements Externalizable {
 
     public void copy(Data data) {
 
-     //   setDataEventList(data.getDataEventList());
-     //  setDataGraphicList( data.getDataGraphicList());;
+        //   setDataEventList(data.getDataEventList());
+        //  setDataGraphicList( data.getDataGraphicList());;
         setEndThreshold(data.getEndThreshold());
         setGroupRefractiveIndex(data.getGroupRefractiveIndex());
-     //   setDataId(data.getDataId());
+        //   setDataId(data.getDataId());
         setLinkAttenuation(data.getLinkAttenuation());
         setLinkLength(data.getLinkLength());
         setLinkLoss(data.getLinkLoss());

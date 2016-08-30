@@ -115,11 +115,26 @@ public class ConfigurationWindowController extends ControllerExec {
     @FXML
     private ProgressBar progressBar;
     @FXML
-    private LineChart<?, ?> grafico;
+    protected LineChart<NumberAxis, NumberAxis> grafico;
     @FXML
-    private NumberAxis yAxis;
+    protected NumberAxis xAxis;
     @FXML
-    private NumberAxis xAxis;
+    protected NumberAxis yAxis;
+    @FXML
+    protected TableView<DataEvent> resultTable;
+
+    @FXML
+    protected TableColumn<DataEvent, String> typeColumn;
+    @FXML
+    protected TableColumn<DataEvent, Float> distanceColumn;
+    @FXML
+    protected TableColumn<DataEvent, Float> insertLossColumn;
+    @FXML
+    protected TableColumn<DataEvent, Float> reflectLossColumn;
+    @FXML
+    protected TableColumn<DataEvent, Float> accumulationColumn;
+    @FXML
+    protected TableColumn<DataEvent, Float> attenuationCoefficientColumn;
 
     public void setLimits(Limit limits) {
         this.limits = limits;
@@ -132,6 +147,7 @@ public class ConfigurationWindowController extends ControllerExec {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
+        mappingParametersTable(typeColumn, distanceColumn, insertLossColumn, reflectLossColumn, accumulationColumn, attenuationCoefficientColumn);
 
         executionLabel.setVisible(false);
 
@@ -145,7 +161,7 @@ public class ConfigurationWindowController extends ControllerExec {
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, "Devices carregados na tela...");
             parameters = device.getParameter();
             limits = device.getLimit();
-           
+
         } else {
             device = null;
 //            host = null;
@@ -179,8 +195,7 @@ public class ConfigurationWindowController extends ControllerExec {
         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
         cycleTimeField.setText(parameters.getCycleTime().toString());
-        //prepareMenu(Mode.EDIT);
-        progressBar = new ProgressBar();
+        user = device.getUser();
 
     }
 
@@ -228,14 +243,6 @@ public class ConfigurationWindowController extends ControllerExec {
 
             }
 
-//            if (host != null) {
-//                try {
-//                    host.closeConnection();
-//                } catch (Exception ex) {
-//                    Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//            }
-
         } else {
             String msg = "Nenhum device selecionado para deletar.";
             Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
@@ -278,17 +285,11 @@ public class ConfigurationWindowController extends ControllerExec {
                 dialogStage.showAndWait();
 
                 if (controller.isOkClicked()) {
-//                DataDeviceDAO dao = new DataDeviceDAO();
-//                dao.create(device);
+
                     devicesData.add(device);
                     devicesList.setItems(devicesData);
                     this.device = device;
-//                    this.host = new DeviceComunicator(device.getIp().trim(), 5000);
-//                    try {
-//                        host.initialize();
-//                    } catch (Exception ex) {
-//                        Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
+
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
@@ -384,14 +385,11 @@ public class ConfigurationWindowController extends ControllerExec {
     private void onHandleExecute() throws IOException {
 
         if (device != null) {
-           
+
+            if (host == null) {
                 host = new DeviceComunicator(device.getIp().trim(), 5000);
-            try {
-                host.initialize();
-            } catch (Exception ex) {
-                Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+
             }
-            
 
             if (buttonSave.isDisable()) {
                 executionLabel.setVisible(true);
@@ -448,24 +446,22 @@ public class ConfigurationWindowController extends ControllerExec {
                                     executionLabel.setText(msg);
 
                                     receiveValues = host.getReceiveValues();
-                                    grafico.getData().clear();
-                                    plotGraph();
+                                    //grafico.getData().clear();
+                                    plotGraph(grafico, receiveParameters);
                                     grafico.setCreateSymbols(false);
+                                    grafico.setAnimated(false);
+                                    grafico.setLegendVisible(false);
+
                                     msg = "Gráfico plotado na tela de configuração.";
                                     Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                                     executionLabel.setText(msg);
-//                                    try {
-//                                        host.closeConnection();
-//                                    } catch (Exception ex) {
-//                                        Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
-//                                    }
                                     buttonExport.setDisable(false);
                                     buttonReference.setDisable(false);
                                     buttonExecute.setDisable(false);
                                     buttonMonitor.setDisable(false);
                                     executionLabel.setVisible(false);
                                 } else {
-                                    System.out.println("Deu erro!");
+
                                     buttonExport.setDisable(false);
                                     buttonReference.setDisable(false);
                                     buttonExecute.setDisable(false);
@@ -492,7 +488,7 @@ public class ConfigurationWindowController extends ControllerExec {
 
     @FXML
     private void onHandleExport() {
-        exportData();
+        exportData(receiveParameters, receiveValues);
     }
 
     @FXML
@@ -610,19 +606,25 @@ public class ConfigurationWindowController extends ControllerExec {
         DeviceDAO deviceDao = new DeviceDAO();
 
         List<Device> deviceList = deviceDao.findDeviceEntities();
-//        for (Device p : deviceList) {
-//            if ((p.getName().compareToIgnoreCase(device.getName())) == 0) {
+
         Device deviceReference = deviceList.get(0);
-//            }
-//        }
 
         if (deviceReference != null) {
-
+            if(user == null){
+                UserDAO dao = new UserDAO();
+                user = dao.findByUsername("admin").get(0);                       
+            }
             MonitorWindowController controller
                     = (MonitorWindowController) MainApp.getInstance().showView(View.MonitorWindow, Mode.VIEW);
 
             controller.setReference(deviceReference, user);
-
+            if (host != null) {
+                try {
+                    host.closeConnection();
+                } catch (Exception ex) {
+                    Logger.getLogger(MonitorWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         } else {
             AlertDialog.referenceMissing();
         }

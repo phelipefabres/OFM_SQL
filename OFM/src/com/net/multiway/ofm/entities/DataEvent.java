@@ -26,6 +26,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  *
@@ -297,6 +299,7 @@ public class DataEvent implements Externalizable {
 
     @JoinColumn(name = "data_id", referencedColumnName = "data_id", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @NotFound(action = NotFoundAction.IGNORE)
     public Data getData() {
         if (data == null) {
             return _data;

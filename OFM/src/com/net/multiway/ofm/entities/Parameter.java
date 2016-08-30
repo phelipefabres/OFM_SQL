@@ -11,11 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Date;
-import javafx.beans.property.FloatProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -34,6 +30,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 /**
  *
@@ -154,7 +152,6 @@ public class Parameter implements Externalizable {
         this._cycleTime = cycleTime;
         this._createTime = createTime;
     }
-
 
     private ObjectProperty<Integer> parameterId;
     private Integer _parameterId;
@@ -640,6 +637,7 @@ public class Parameter implements Externalizable {
 
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     @ManyToOne(optional = false)
+    @NotFound(action = NotFoundAction.IGNORE)
     public User getUser() {
         if (user == null) {
             return _user;
