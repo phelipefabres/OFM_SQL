@@ -62,7 +62,7 @@ import javafx.scene.paint.Color;
 public class MonitorWindowController extends ControllerExec {
 
     private ObservableList<Occurrence> occurrenceList;
-    
+
     private Occurrence occurrence;
     //Thread de execução do monitor
     private Service service;
@@ -405,7 +405,6 @@ public class MonitorWindowController extends ControllerExec {
                     = (ConfigurationWindowController) MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
 
             controller.setUser(user);
-//                    MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
             if (host != null) {
                 try {
                     host.closeConnection();
@@ -679,8 +678,7 @@ public class MonitorWindowController extends ControllerExec {
                 occurrenceList.add(result);
             });
             occurrenceTable.setItems(occurrenceList);
-        }
-        else{
+        } else {
             AlertDialog.NothingToReference();
         }
 
@@ -798,13 +796,14 @@ public class MonitorWindowController extends ControllerExec {
                     occurrList.add(occurr);
                 }
             }
-            if(occurr.getType().compareTo("OK") == 0)
+            if (occurr.getType().compareTo("OK") == 0) {
                 occurrList.add(occurr);
+            }
             return occurrList;
         }
 
         occurrList.add(occurr);
-        System.out.println("Size = "+occurrList.size());
+        System.out.println("Size = " + occurrList.size());
         return occurrList;
     }
 }

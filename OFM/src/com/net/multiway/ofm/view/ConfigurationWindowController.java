@@ -50,7 +50,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -112,8 +111,7 @@ public class ConfigurationWindowController extends ControllerExec {
     @FXML
     private Button buttonEditLimit;
 
-    @FXML
-    private ProgressBar progressBar;
+   
     @FXML
     protected LineChart<NumberAxis, NumberAxis> grafico;
     @FXML

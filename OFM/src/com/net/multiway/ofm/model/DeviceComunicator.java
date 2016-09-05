@@ -90,9 +90,15 @@ public class DeviceComunicator {
         s.sender();
     }
 
-    private void sendPackage() throws IOException {
+    private int sendPackage() {
         SendConfirmationSignal s = new SendConfirmationSignal(this.out);
-        s.sender();
+        try {
+            s.sender();
+            return 1;
+        } catch (IOException ex) {
+            Logger.getLogger(DeviceComunicator.class.getName()).log(Level.SEVERE, null, ex);
+            return 3;
+        }
     }
 
     private int receivePackage() throws Exception {
@@ -156,27 +162,29 @@ public class DeviceComunicator {
 
         try {
             sendPackage(data);
-            int flag = 1;
+            int send = 1;
+            int rec = 1;
             int i = 0;
-            while (flag == 1) {
+            while (send == 1 && rec == 1) {
                 String msg = "Receiving frame " + i + ".";
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 i++;
 
-                flag = receivePackage();
+                send = receivePackage();
         //       pb.set((pb.get() + 1));
-                if (flag == 3) {
-                    break;
-                }
+                
                 msg = "Frame Received" + i + ".";
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
-                sendPackage();
+                rec = sendPackage();
+                if (send == 3 || rec == 3) {
+                    break;
+                }
                 msg = "Package Send" + i + ".";
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
             }
-            if (flag == 3) {
+            if (send == 3 || rec == 3) {
                 String msg = "Fechando conexão.";
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 closeConnection();

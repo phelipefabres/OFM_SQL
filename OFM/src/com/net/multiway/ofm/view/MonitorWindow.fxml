@@ -26,16 +26,16 @@
                     <items>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" SplitPane.resizableWithParent="false">
                            <children>
-                              <GridPane layoutX="17.0" layoutY="65.0" prefHeight="131.0" prefWidth="236.0" AnchorPane.leftAnchor="17.0" AnchorPane.topAnchor="0.0">
+                              <GridPane layoutX="18.0" layoutY="13.0" prefHeight="118.0" prefWidth="235.0" AnchorPane.leftAnchor="18.0" AnchorPane.topAnchor="13.0">
                                 <columnConstraints>
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="121.0" minWidth="10.0" prefWidth="104.0" />
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.0" minWidth="10.0" prefWidth="149.0" />
                                 </columnConstraints>
                                 <rowConstraints>
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="15.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="15.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="15.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
                                     <Label prefHeight="32.0" prefWidth="107.0" text="Dispositivo">
@@ -97,7 +97,7 @@
                               </GridPane>
                               <Button fx:id="buttonSave" layoutX="192.0" layoutY="343.0" mnemonicParsing="false" onAction="#onHandleSaveParameters" text="Salvar" textAlignment="CENTER" AnchorPane.leftAnchor="192.0" AnchorPane.topAnchor="343.0" />
                               <Button fx:id="buttonEdit" layoutX="122.0" layoutY="343.0" mnemonicParsing="false" onAction="#onHandleEditParameters" prefHeight="26.0" prefWidth="59.0" text="Editar" textAlignment="CENTER" AnchorPane.leftAnchor="122.0" AnchorPane.topAnchor="343.0" />
-                              <ProgressBar fx:id="progressBar" layoutX="7.0" layoutY="430.0" prefWidth="200.0" progress="0.0" />
+                              <ProgressBar fx:id="progressBar" layoutX="14.0" layoutY="405.0" prefWidth="200.0" progress="0.0" />
                            </children>
                         </AnchorPane>
                     </items>
@@ -147,7 +147,7 @@
                                             <columns>
                                               <TableColumn fx:id="occurrenceColumm" prefWidth="195.0" text="Ocorrencia" />
                                                 <TableColumn fx:id="descriptionColumm" prefWidth="390.0" text="Descricao" />
-                                                <TableColumn fx:id="dateColumm" prefWidth="111.0" text="Data/Hora" />
+                                                <TableColumn fx:id="dateColumm" minWidth="0.0" prefWidth="142.0" text="Data/Hora" />
                                             </columns>
                                           </TableView>
                                        </children>
