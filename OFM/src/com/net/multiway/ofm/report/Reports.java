@@ -36,7 +36,7 @@ public class Reports {
 
             JasperPrint print = JasperFillManager.fillReport("resources/occurrenceReport.jasper", null, jrds);
             JasperExportManager.exportReportToPdfFile(print, "resources/occurrenceReport.pdf");
-            JasperViewer.viewReport(print, false);
+           // JasperViewer.viewReport(print, false);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,7 +53,7 @@ public class Reports {
 
             JasperPrint print = JasperFillManager.fillReport("resources/eventsReport.jasper", null, jrds);
             JasperExportManager.exportReportToPdfFile(print, "resources/eventsReport.pdf");
-            JasperViewer.viewReport(print, false);
+           // JasperViewer.viewReport(print, false);
 
         } catch (Exception e) {
             e.printStackTrace();

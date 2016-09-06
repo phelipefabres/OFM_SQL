@@ -14,6 +14,7 @@ import com.net.multiway.ofm.exception.AlertDialog;
 import com.net.multiway.ofm.model.IController;
 import com.net.multiway.ofm.model.Mode;
 import com.net.multiway.ofm.model.View;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -22,12 +23,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -64,27 +69,8 @@ public class LoginWindowController implements Initializable, IController {
         List<User> userList = userDao.findByUsername(userField.getText());
 
         if (userList.isEmpty()) {
-            User user = new User();
-            user.setUsername("admin");
-            user.setEmail("teste@teste.com");
-            user.setPassword("123");
-            user.setisAdmin(1);
-            user.setCreateTime(new Date());
-            userDao.create(user);
-            String msg = "Usuário não encontrado.";
-            Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-            AlertDialog.LoginInvalid();
+            onHandleAddUser();
         } else {
-//            System.out.println(userList.size());
-//            if (userList.size() < 2) {
-//                User user2 = new User();
-//                user2.setUsername("junior");
-//                user2.setEmail("teste2@teste.com");
-//                user2.setPassword("123");
-//                user2.setisAdmin(0);
-//                user2.setCreateTime(new Date());
-//                userDao.create(user2);
-//            }
             User user = null;
             for (User p : userList) {
                 if (p.getUsername().compareToIgnoreCase(userField.getText()) == 0 && p.getPassword().compareTo(passwordField.getText()) == 0) {
@@ -94,7 +80,7 @@ public class LoginWindowController implements Initializable, IController {
             if (user != null) {
                 if (user.getisAdmin() == 1) {
                     ConfigurationWindowController controller
-                            = (ConfigurationWindowController) MainApp.getInstance().showView(View.ConfigurationWindow, Mode.VIEW);
+                            = (ConfigurationWindowController) MainApp.getInstance().showView(View.ConfigurationWindow, Mode.EDIT);
 
                     controller.setUser(user);
                     String msg = "ConfigurationWindow inicializada...";
@@ -159,6 +145,37 @@ public class LoginWindowController implements Initializable, IController {
 
         }
 
+    }
+
+    private void onHandleAddUser() {
+        try {
+            // Carrega o arquivo fxml e cria um novo stage para a janela popup.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(View.LoginCreateWindow.getResource()));
+            AnchorPane page;
+
+            page = (AnchorPane) loader.load();
+
+            // Cria o palco dialogStage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Criar Usuário");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(MainApp.getInstance().getPrimaryStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            // Define o device no controller.
+            LoginCreateWindowController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+           // controller.setDevice(device);
+
+            // Mostra a janela e espera até o usuário fechar.
+            dialogStage.showAndWait();
+
+        } catch (IOException ex) {
+            Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            AlertDialog.exception(ex);
+        }
     }
 
 }

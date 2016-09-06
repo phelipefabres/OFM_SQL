@@ -92,6 +92,15 @@ public class AlertDialog {
         alert.showAndWait();
 
     }
+    public static void emailInvalid() {
+        // Nada selecionado.
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Erro");
+        alert.setHeaderText("Email já existente.");
+
+        alert.showAndWait();
+
+    }
 
     public static void IncorrectField(String text) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

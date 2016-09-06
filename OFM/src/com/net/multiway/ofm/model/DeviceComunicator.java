@@ -16,6 +16,7 @@ import com.net.multiway.ofm.send.SendParameters;
 import com.net.multiway.ofm.send.SendStopTest;
 import com.net.multiway.ofm.send.SendDevice;
 import com.net.multiway.ofm.send.SendConfirmationSignal;
+import com.net.multiway.ofm.utils.MyNumber;
 import com.net.multiway.ofm.utils.Utils;
 import java.net.InetSocketAddress;
 import java.util.logging.Level;
@@ -158,21 +159,22 @@ public class DeviceComunicator {
 
     }
 
-    public void connect(Parameter data, IntegerProperty pb) throws Exception {
+    public void connect(Parameter data, MyNumber pb) throws Exception {
 
         try {
             sendPackage(data);
             int send = 1;
             int rec = 1;
             int i = 0;
+            pb.setBarNumber(0);
             while (send == 1 && rec == 1) {
                 String msg = "Receiving frame " + i + ".";
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
                 i++;
 
                 send = receivePackage();
-        //       pb.set((pb.get() + 1));
-                
+                pb.setBarNumber((pb.getBarNumber() + 0.1));
+
                 msg = "Frame Received" + i + ".";
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
@@ -193,7 +195,7 @@ public class DeviceComunicator {
                 ReInitialize();
                 msg = "Reiniciando a conexão.";
                 Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
-         //       pb.set(0);
+                //       pb.set(0);
                 connect(data, pb);
             }
         } catch (Exception ex) {

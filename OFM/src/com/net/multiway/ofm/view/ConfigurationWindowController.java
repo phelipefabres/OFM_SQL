@@ -111,7 +111,6 @@ public class ConfigurationWindowController extends ControllerExec {
     @FXML
     private Button buttonEditLimit;
 
-   
     @FXML
     protected LineChart<NumberAxis, NumberAxis> grafico;
     @FXML
@@ -133,6 +132,8 @@ public class ConfigurationWindowController extends ControllerExec {
     protected TableColumn<DataEvent, Float> accumulationColumn;
     @FXML
     protected TableColumn<DataEvent, Float> attenuationCoefficientColumn;
+    @FXML
+    private Button buttonAddUser;
 
     public void setLimits(Limit limits) {
         this.limits = limits;
@@ -193,8 +194,9 @@ public class ConfigurationWindowController extends ControllerExec {
         Logger.getLogger(MainApp.class.getName()).log(Level.INFO, msg);
 
         cycleTimeField.setText(parameters.getCycleTime().toString());
-        user = device.getUser();
+//        user = device.getUser();
 
+        prepareMenu(Mode.VIEW);
     }
 
     @FXML
@@ -408,14 +410,6 @@ public class ConfigurationWindowController extends ControllerExec {
                                 buttonMonitor.setDisable(true);
 
                                 host.connect(parameters);
-//                                for (int i = 0; i < 100; i++) {
-//                                    updateProgress(i, 100);
-//                                    try {
-//                                        Thread.sleep(100);
-//                                    } catch (InterruptedException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
 
                                 return null;
                             }
@@ -444,7 +438,6 @@ public class ConfigurationWindowController extends ControllerExec {
                                     executionLabel.setText(msg);
 
                                     receiveValues = host.getReceiveValues();
-                                    //grafico.getData().clear();
                                     plotGraph(grafico, receiveParameters);
                                     grafico.setCreateSymbols(false);
                                     grafico.setAnimated(false);
@@ -608,9 +601,9 @@ public class ConfigurationWindowController extends ControllerExec {
         Device deviceReference = deviceList.get(0);
 
         if (deviceReference != null) {
-            if(user == null){
+            if (user == null) {
                 UserDAO dao = new UserDAO();
-                user = dao.findByUsername("admin").get(0);                       
+                user = dao.findByUsername("admin").get(0);
             }
             MonitorWindowController controller
                     = (MonitorWindowController) MainApp.getInstance().showView(View.MonitorWindow, Mode.VIEW);
@@ -677,7 +670,7 @@ public class ConfigurationWindowController extends ControllerExec {
                 MainApp.getInstance().disable(Menu.Print, true);
                 break;
             case EDIT:
-                System.out.println("Aqui!");
+//                System.out.println("Aqui!");
                 MainApp.getInstance().disable(Menu.Print, false);
                 MainApp.getInstance().disable(Menu.ExportEL, false);
                 MainApp.getInstance().disable(Menu.ExportLR, false);
@@ -776,6 +769,38 @@ public class ConfigurationWindowController extends ControllerExec {
 
     void setUser(User user) {
         this.user = user;
+    }
+
+    @FXML
+    private void onHandleAddUser(ActionEvent event) {
+        try {
+            // Carrega o arquivo fxml e cria um novo stage para a janela popup.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource(View.LoginCreateWindow.getResource()));
+            AnchorPane page;
+
+            page = (AnchorPane) loader.load();
+
+            // Cria o palco dialogStage.
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Criar Usuário");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(MainApp.getInstance().getPrimaryStage());
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            // Define o device no controller.
+            LoginCreateWindowController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            // controller.setDevice(device);
+
+            // Mostra a janela e espera até o usuário fechar.
+            dialogStage.showAndWait();
+
+        } catch (IOException ex) {
+            Logger.getLogger(ConfigurationWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            AlertDialog.exception(ex);
+        }
     }
 
 }

@@ -370,5 +370,20 @@ public class UserDAO extends DAO implements Serializable {
             em.close();
         }
     }
-
+ /**
+     * Method get email ordered by number
+     *
+     * @param email
+     * @return all user in database with this username
+     */
+    public List<User> findByEmail(String email) {
+        EntityManager em = getEntityManager();
+        try {
+            Query query = em.createNamedQuery("User.findByEmail");
+            query.setParameter("email", email);
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }
